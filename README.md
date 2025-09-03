@@ -1,13 +1,13 @@
 <h1 align="center">こんにちは 👋！<br />私は ファム・ホアン・ヴィン です</h1>
-<h4 align="center">
+<h3 align="center">
 データエンジニアという職種に強い興味があり、<br />
 将来的には日本で働きたいと考えています。<br />
 よろしくお願いします！😊
-</h4>
+</h3>
 
 ---
 
-- 🌱 現在学習中: **Django REST API、Docker**
+- 🌱 現在学習中: **Django REST API、Docker, Dagster**
 - 💬 聞いてください: **Python、データ技術**
 - 📫 連絡先: **hoangvinh9257@gmail.com**
 
