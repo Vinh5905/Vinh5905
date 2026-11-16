@@ -111,26 +111,26 @@
       "medium": 0.25,
       "strong": 0.1
     },
-    "intensity": 1.0,
     "glow": 1.0,
     "margin": 10,
     "colors": {
       "dark": {
-        "core": "#E9FFE5",
-        "main": "#8BFF62",
-        "glow": "#65FF45",
-        "secondary": "#B5FF91"
+        "core": "#F2FFF3",
+        "main": "#9DEB9C",
+        "glow": "#5FDB72",
+        "secondary": "#B7F2B8"
       },
       "light": {
-        "core": "#F3FFEE",
-        "main": "#16B34A",
-        "glow": "#3DDC5C",
-        "secondary": "#22C55E"
+        "core": "#F4FFF5",
+        "main": "#1FA84F",
+        "glow": "#3FCF68",
+        "secondary": "#2DBB5C"
       }
     },
     "avoidText": false,
-    "size": 2.0,
-    "thickness": 1.3,
-    "textClearance": 8
+    "size": 1.0,
+    "thickness": 1.0,
+    "textClearance": 8,
+    "speed": 1.0
   }
 }

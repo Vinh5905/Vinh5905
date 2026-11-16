@@ -107,7 +107,7 @@ export function renderHero({ config, t, mode, fonts, motion, animated, root, com
       [Math.min(...xs) - 4, Math.min(...ys) - 6, Math.max(...xs) - Math.min(...xs) + 8, Math.max(...ys) - Math.min(...ys) + th + 10],
     ];
     const gen = generateLightning({ ...lc, seed: lc.seed + (compact ? 101 : 0) }, { width: W, height: H, keepOut });
-    lightning = renderLightning(gen, lc.colors[mode], { width: W, height: H, uid: 'lt' });
+    lightning = renderLightning(gen, lc.colors[mode], { width: W, height: H, uid: 'lt', thickness: lc.thickness ?? 1 });
     defs.push(...lightning.defs);
   }
 

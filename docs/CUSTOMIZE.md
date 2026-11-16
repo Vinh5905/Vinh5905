@@ -96,8 +96,11 @@ Cấu hình ở `lightning` trong `profile.config.json`:
 | `gapSeconds` | khoảng nghỉ ngẫu nhiên giữa hai lần phóng điện (mặc định 1.5–5 s) |
 | `doubleChance` | xác suất có hai tia liền nhau |
 | `mix` | tỉ lệ tia yếu / vừa / mạnh (mặc định 65% / 25% / 10%) |
+
+Mỗi tia: một đốm sáng ở điểm đầu → tia mọc nhanh dọc đường gấp khúc tới điểm cuối → phần đuôi vỡ thành các mảnh nhỏ và biến mất dần từ điểm đầu về điểm cuối, có chớp nháy không đều; nhánh phụ phóng ra khi tia đi qua gốc nhánh.
 | `size`, `thickness` | hệ số độ dài và độ dày của tia |
-| `intensity`, `glow` | độ mạnh và độ sáng quầng xanh |
+| `speed` | tốc độ chạy (nhỏ hơn 1 = chạy lâu hơn) |
+| `glow` | độ sáng quầng xanh |
 | `avoidText` | `false` (mặc định): tia sét có thể chạy khắp ảnh hero, kể cả đè lên chữ; `true`: né chữ và cụm cột |
 | `margin`, `textClearance` | khoảng cách tối thiểu tới mép ảnh và tới chữ |
 | `colors.dark`, `colors.light` | màu lõi (`core`), thân (`main`), quầng (`glow`), nhánh (`secondary`) cho từng theme |
