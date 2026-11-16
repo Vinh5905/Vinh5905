@@ -50,18 +50,30 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
   };
 
   // wandering course: heading random-walks; near an edge it bends along it or stops
+  // horizontal preference: the heading keeps being pulled back toward the
+  // horizontal axis (left or right, whichever it started on) and never tilts
+  // beyond maxTilt, so bolts run and curve sideways rather than drop vertically
+  const maxTilt = cfg.maxTilt ?? 0.6;
+  const horizontal = (cfg.orientation ?? 'horizontal') === 'horizontal';
+  const tame = (h, base) => {
+    if (!horizontal) return h;
+    let dev = Math.atan2(Math.sin(h - base), Math.cos(h - base));
+    dev *= 0.82; // pull back
+    return base + Math.max(-maxTilt, Math.min(maxTilt, dev));
+  };
   const course = (S, heading, len, step, turn) => {
     const pts = [S];
+    const base = Math.cos(heading) >= 0 ? 0 : Math.PI;
     let h = heading, walked = 0, [x, y] = S;
     while (walked < len) {
-      h += R(-turn, turn);
+      h = tame(h + R(-turn, turn), base);
       let nx = x + Math.cos(h) * step, ny = y + Math.sin(h) * step;
       // near an edge: bend gently along it; if that is not enough, the bolt ends
       // there (no hairpin loops)
       let guard = 0;
       const h0 = h;
       while (!inside(nx, ny, 6) && guard++ < 6) {
-        h = h0 + (guard % 2 ? 1 : -1) * 0.22 * Math.ceil(guard / 2);
+        h = tame(h0 + (guard % 2 ? 1 : -1) * 0.22 * Math.ceil(guard / 2), base);
         nx = x + Math.cos(h) * step; ny = y + Math.sin(h) * step;
       }
       if (guard >= 6) break;
@@ -87,14 +99,18 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
     for (let tries = 0; tries < 300 && !made; tries++) {
       // start: anywhere, or (40%) close to an edge running along it
       let S, heading;
+      const side = rnd() < 0.5 ? 0 : Math.PI; // run to the right or to the left
       if (rnd() < 0.4) {
+        // along the top or bottom edge, or entering from the left/right edge
         const edge = RI(0, 3);
         const off = R(M + 8, M + 26);
-        S = edge === 0 ? [R(M, width - M), off] : edge === 1 ? [R(M, width - M), height - off] : edge === 2 ? [off, R(M, height - M)] : [width - off, R(M, height - M)];
-        heading = (edge < 2 ? 0 : Math.PI / 2) + (rnd() < 0.5 ? 0 : Math.PI) + R(-0.35, 0.35);
+        if (edge === 0) S = [R(M, width - M), off];
+        else if (edge === 1) S = [R(M, width - M), height - off];
+        else S = [edge === 2 ? off : width - off, R(M + 20, height - M - 20)];
+        heading = (edge === 2 ? 0 : edge === 3 ? Math.PI : side) + R(-0.3, 0.3);
       } else {
         S = [R(M, width - M), R(M, height - M)];
-        heading = R(0, Math.PI * 2);
+        heading = horizontal ? side + R(-maxTilt, maxTilt) * 0.7 : R(0, Math.PI * 2);
       }
       if (!inside(S[0], S[1], 8)) continue;
       if (prev && Math.hypot(S[0] - prev.start[0], S[1] - prev.start[1]) < 120) continue;
@@ -108,7 +124,7 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
       for (let b = 0; b < nb; b++) {
         const k = RI(2, c.pts.length - 3);
         if (k < 1) continue;
-        const dir = Math.atan2(c.pts[k + 1][1] - c.pts[k][1], c.pts[k + 1][0] - c.pts[k][0]) + (rnd() < 0.5 ? -1 : 1) * R(0.5, 1.1);
+        const dir = Math.atan2(c.pts[k + 1][1] - c.pts[k][1], c.pts[k + 1][0] - c.pts[k][0]) + (rnd() < 0.5 ? -1 : 1) * R(0.35, horizontal ? 0.7 : 1.1);
         const bc = course(c.pts[k], dir, len * R(0.12, 0.3), R(16, 26), 0.5);
         if (bc.pts.length < 3) continue;
         branches.push({ at: k / (c.pts.length - 1), points: detail(bc.pts, 20) });
@@ -140,7 +156,7 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
  *              glow and halo linger as an after-image
  */
 export function renderLightning({ events, loopMs }, colors, { width, height, uid = 'lt', thickness = 1 }) {
-  const pct = (ms) => `${((Math.max(0, ms) / loopMs) * 100).toFixed(3)}%`;
+  const pct = (ms) => `${+((Math.max(0, ms) / loopMs) * 100).toFixed(2)}%`;
   const f1 = (v) => (Math.round(v * 10) / 10).toString(); // 0.1px is plenty for a bolt
   const d = (pts) => 'M' + pts.map(([x, y]) => `${f1(x)} ${f1(y)}`).join('L');
   const css = [`.${uid}{opacity:0}`];
