@@ -96,11 +96,13 @@ Cấu hình ở `lightning` trong `profile.config.json`:
 | `gapSeconds` | khoảng nghỉ ngẫu nhiên giữa hai lần phóng điện (mặc định 1.5–5 s) |
 | `doubleChance` | xác suất có hai tia liền nhau |
 | `mix` | tỉ lệ tia yếu / vừa / mạnh (mặc định 65% / 25% / 10%) |
-| `intensity`, `glow` | độ dài và độ sáng quầng xanh |
+| `size`, `thickness` | hệ số độ dài và độ dày của tia |
+| `intensity`, `glow` | độ mạnh và độ sáng quầng xanh |
+| `avoidText` | `false` (mặc định): tia sét có thể chạy khắp ảnh hero, kể cả đè lên chữ; `true`: né chữ và cụm cột |
 | `margin`, `textClearance` | khoảng cách tối thiểu tới mép ảnh và tới chữ |
 | `colors.dark`, `colors.light` | màu lõi (`core`), thân (`main`), quầng (`glow`), nhánh (`secondary`) cho từng theme |
 
-Vùng phóng điện là toàn bộ ảnh hero, trừ chữ và cụm cột emerald: hệ thống tự đo vị trí chữ, nên khi bạn sửa lời giới thiệu thì tia sét vẫn né đúng chỗ.
+Vùng phóng điện là toàn bộ ảnh hero (cách mép `margin` px). Khi `avoidText` là `true`, hệ thống tự đo vị trí chữ để tia né đúng chỗ.
 Bản tĩnh và chế độ giảm chuyển động không có tia sét.
 
 Xem trước dạng video: `node scripts/record.mjs assets/generated/hero-dark.svg out.mp4 --to 20` (cần Playwright và ffmpeg).

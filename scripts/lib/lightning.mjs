@@ -84,7 +84,7 @@ export function generateLightning(cfg, { width, height, keepOut }) {
     const K = CLASSES[kind];
     let made = null;
     for (let tries = 0; tries < 400 && !made; tries++) {
-      const len = R(...K.len) * (0.85 + 0.15 * cfg.intensity);
+      const len = R(...K.len) * (cfg.size ?? 1) * (0.85 + 0.15 * cfg.intensity);
       let S;
       if (doubles && prev) S = [prev.points[0][0] + R(-40, 40), prev.points[0][1] + R(-24, 24)];
       else if (rnd() < 0.18) { // occasionally close to an edge
@@ -93,7 +93,7 @@ export function generateLightning(cfg, { width, height, keepOut }) {
       } else S = [R(M, width - M), R(M, height - M)];
       if (blocked(S[0], S[1], 4)) continue;
       // keep separate discharges apart so each stays readable
-      if (!doubles && prev && Math.hypot(S[0] - prev.points[0][0], S[1] - prev.points[0][1]) < 110) continue;
+      if (!doubles && prev && Math.hypot(S[0] - prev.points[0][0], S[1] - prev.points[0][1]) < 110 * Math.sqrt(cfg.size ?? 1)) continue;
       const angle = R(0, Math.PI * 2);
       const points = jagged(S, angle, len, RI(...K.seg), R(...K.amp));
       if (!clear(points, 5)) continue;
@@ -107,7 +107,7 @@ export function generateLightning(cfg, { width, height, keepOut }) {
       }
       const sparks = Array.from({ length: RI(...K.sparks) }, () => {
         const p = points[RI(1, points.length - 2)];
-        return [p[0] + R(-9, 9), p[1] + R(-9, 9), R(0.8, 1.6)];
+        return [p[0] + R(-12, 12), p[1] + R(-12, 12), R(0.9, 1.8)];
       }).filter(([x, y]) => !blocked(x, y, 3));
       made = {
         kind, points, branches, sparks,
@@ -117,7 +117,8 @@ export function generateLightning(cfg, { width, height, keepOut }) {
         flick: Math.round(R(...K.flick)),
         fade: Math.round(R(...K.fade)),
         peak: K.peak * (0.8 + 0.2 * rnd()),
-        glowW: K.glowW * cfg.glow * R(0.85, 1.15),
+        glowW: K.glowW * cfg.glow * (cfg.thickness ?? 1) * R(0.85, 1.15),
+        th: cfg.thickness ?? 1,
         glowOp: Math.min(1, K.glowOp * cfg.glow * R(0.8, 1.1)),
         flickSeed: rnd(),
       };
@@ -167,7 +168,7 @@ export function renderLightning({ events, loopMs }, colors, { width, height, uid
     frames(`${id}s`, [[0, 'opacity:0;transform:scale(.3)'], [A * 0.6, 'opacity:1;transform:scale(1.25)'], [A, 'opacity:.9;transform:scale(1)'], [B, 'opacity:.55'], [Cc, 'opacity:.35'], [Cc + ev.fade * 0.4, 'opacity:0']]);
     body.push(el('g', { class: uid, style: `${anim(`${id}s`, ev.start)};transform-box:fill-box;transform-origin:center` }, [
       el('circle', { cx: n(S[0]), cy: n(S[1]), r: 7 + ev.glowW, fill: colors.glow, opacity: 0.35, filter: `url(#${uid}Soft)` }),
-      el('circle', { cx: n(S[0]), cy: n(S[1]), r: 1.8, fill: colors.core }),
+      el('circle', { cx: n(S[0]), cy: n(S[1]), r: 1.8 * ev.th, fill: colors.core }),
     ]));
 
     // glow under the whole bolt: draws with it, flashes in C, fades last
@@ -199,8 +200,8 @@ export function renderLightning({ events, loopMs }, colors, { width, height, uid
       ]);
       const dd = d(pts);
       body.push(el('g', { class: uid, style: anim(`${id}c${c}`, ev.start), 'stroke-linecap': 'round', 'stroke-linejoin': 'miter', 'stroke-dasharray': '100 101' }, [
-        el('path', { d: dd, pathLength: 100, stroke: colors.main, 'stroke-width': ev.kind === 'strong' ? 1.7 : 1.35 }),
-        el('path', { d: dd, pathLength: 100, stroke: colors.core, 'stroke-width': ev.kind === 'strong' ? 0.7 : 0.55 }),
+        el('path', { d: dd, pathLength: 100, stroke: colors.main, 'stroke-width': n((ev.kind === 'strong' ? 1.7 : 1.35) * ev.th) }),
+        el('path', { d: dd, pathLength: 100, stroke: colors.core, 'stroke-width': n((ev.kind === 'strong' ? 0.7 : 0.55) * ev.th) }),
       ]));
     }
 
@@ -216,8 +217,8 @@ export function renderLightning({ events, loopMs }, colors, { width, height, uid
       const dd = d(br.points);
       body.push(el('g', { class: uid, style: anim(`${id}b${b}`, ev.start), 'stroke-linecap': 'round', 'stroke-linejoin': 'miter', 'stroke-dasharray': '100 101' }, [
         el('path', { d: dd, pathLength: 100, stroke: colors.glow, 'stroke-width': ev.glowW * 0.6, opacity: 0.5, filter: `url(#${uid}Blur)` }),
-        el('path', { d: dd, pathLength: 100, stroke: colors.secondary, 'stroke-width': 1 }),
-        el('path', { d: dd, pathLength: 100, stroke: colors.core, 'stroke-width': 0.4 }),
+        el('path', { d: dd, pathLength: 100, stroke: colors.secondary, 'stroke-width': n(1 * ev.th) }),
+        el('path', { d: dd, pathLength: 100, stroke: colors.core, 'stroke-width': n(0.45 * ev.th) }),
       ]));
     });
 

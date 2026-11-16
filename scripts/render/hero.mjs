@@ -94,13 +94,13 @@ export function renderHero({ config, t, mode, fonts, motion, animated, root, com
     ? el('g', { 'clip-path': 'url(#nameClip)' }, el('rect', { x: -160, y: L.nY - L.nS, width: 120, height: L.nS * 1.3, fill: 'url(#sheen)', class: 'sheen', transform: 'skewX(-18)' }))
     : null;
 
-  // ---- lightning: only in the animated file, never over text or the model
+  // ---- lightning: only in the animated file; whole hero area, or around the text when avoidText is set
   let lightning = null;
   const lc = config.lightning;
   if (animated && lc?.enabled) {
     const box = (x, y0, w, size) => [x, y0 - size * 0.92, w, size * 1.18];
     const ys = [...B, ...tops].map(([, y]) => y), xs = [...B, ...tops].map(([x]) => x);
-    const keepOut = [
+    const keepOut = !lc.avoidText ? [] : [
       box(0, L.gY, greet.width, L.g),
       box(0, L.nY, desu.x0 + desu.width, L.nS),
       ...L.lines.map((_, i) => box(0, L.bY + i * L.pitch, body[i].width, L.body)),
@@ -127,6 +127,6 @@ export function renderHero({ config, t, mode, fonts, motion, animated, root, com
     title: intro.alt,
     desc: 'Greeting, name and introduction, with a small emerald data-pipeline model.',
     css: style, defs,
-    body: [lightning ? lightning.body : null, greet.markup, lift, el('path', { d: name.d, fill: t.ink }), sheen, el('path', { d: desu.d, fill: t.ink2 }), body.map((b) => b.markup), plate, blocks, flow, nodes, packet],
+    body: [greet.markup, lift, el('path', { d: name.d, fill: t.ink }), sheen, el('path', { d: desu.d, fill: t.ink2 }), body.map((b) => b.markup), plate, blocks, flow, nodes, packet, lightning ? lightning.body : null],
   });
 }
