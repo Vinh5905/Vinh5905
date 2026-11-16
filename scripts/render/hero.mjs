@@ -23,7 +23,7 @@ function richLine(root, font, text, { x, y, size, fill, prefix }) {
       const icon = loadIcon(root, EMOJI[m[1]], {}, { prefix: `${prefix}-${i}`, dir: 'assets/emoji' });
       const s = size * 1.08;
       cx += size * 0.12;
-      out.push(`<svg x="${n(cx)}" y="${n(y - s * 0.86)}" width="${n(s)}" height="${n(s)}" viewBox="${icon.viewBox}">${icon.inner}</svg>`);
+      out.push(`<svg x="${n(cx)}" y="${n(y - s * 0.86)}" width="${n(s)}" height="${n(s)}" viewBox="${icon.viewBox}" fill="#000">${icon.inner}</svg>`);
       cx += s + size * 0.06;
     } else {
       const t = textPath(font, part, { x: cx, y, size });

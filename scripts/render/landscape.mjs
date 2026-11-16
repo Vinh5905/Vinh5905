@@ -147,12 +147,12 @@ export function renderLandscape({ data, t, fonts, labels, motion, animated, comp
   });
   const axis = el('g', { fill: t.ink3 }, [
     ...shown.map(({ mo, week }) => el('path', {
-      d: textPath(fonts.semibold, MONTHS[mo], { x: 0, y: 0, size: 13 }).d,
-      transform: onBoard(null, week - 0.45, 6 + 1.95),
+      d: textPath(fonts.semibold, MONTHS[mo], { x: 0, y: 0, size: 11 }).d,
+      transform: onBoard(null, week - 0.45, 6 + 1.75),
     })),
     ...Object.entries(DAYS).map(([d, name]) => el('path', {
-      d: textPath(fonts.semibold, name, { x: 0, y: 0, size: 11.5, anchor: 'end' }).d,
-      transform: onBoard(null, -0.8, Number(d) + 0.42),
+      d: textPath(fonts.semibold, name, { x: 0, y: 0, size: 10, anchor: 'end' }).d,
+      transform: onBoard(null, -0.8, Number(d) + 0.36),
     })),
   ]);
 

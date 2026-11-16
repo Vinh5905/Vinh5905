@@ -67,7 +67,10 @@ export function placeIcon(icon, metrics, { cx, cy, box, area = 0.6 }) {
   const x = cx - (bx + bw / 2 - vx) * s;
   const y = cy - (by + bh / 2 - vy) * s;
   return {
-    markup: `<svg x="${n(x)}" y="${n(y)}" width="${n(vw * s)}" height="${n(vh * s)}" viewBox="${[vx, vy, vw, vh].join(' ')}" overflow="visible">${icon.inner}</svg>`,
+    // fill="#000": restore SVG's initial fill — the asset root sets fill="none", which
+    // would otherwise erase logo shapes that rely on the default (Tux's body, the
+    // PostgreSQL outline)
+    markup: `<svg x="${n(x)}" y="${n(y)}" width="${n(vw * s)}" height="${n(vh * s)}" viewBox="${[vx, vy, vw, vh].join(' ')}" overflow="visible" fill="#000">${icon.inner}</svg>`,
     size: [bw * s, bh * s],
   };
 }
