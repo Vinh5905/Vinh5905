@@ -115,16 +115,16 @@
     "margin": 10,
     "colors": {
       "dark": {
-        "core": "#F2FFF3",
-        "main": "#9DEB9C",
-        "glow": "#5FDB72",
-        "secondary": "#B7F2B8"
+        "core": "#F6FFF7",
+        "main": "#7DF08F",
+        "glow": "#4FD86B",
+        "secondary": "#8CF29C"
       },
       "light": {
-        "core": "#F4FFF5",
-        "main": "#1FA84F",
-        "glow": "#3FCF68",
-        "secondary": "#2DBB5C"
+        "core": "#E9FFEC",
+        "main": "#0E9F42",
+        "glow": "#2FC75D",
+        "secondary": "#13A84A"
       }
     },
     "avoidText": false,

@@ -141,7 +141,8 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
  */
 export function renderLightning({ events, loopMs }, colors, { width, height, uid = 'lt', thickness = 1 }) {
   const pct = (ms) => `${((Math.max(0, ms) / loopMs) * 100).toFixed(3)}%`;
-  const d = (pts) => 'M' + pts.map(([x, y]) => `${n(x)} ${n(y)}`).join('L');
+  const f1 = (v) => (Math.round(v * 10) / 10).toString(); // 0.1px is plenty for a bolt
+  const d = (pts) => 'M' + pts.map(([x, y]) => `${f1(x)} ${f1(y)}`).join('L');
   const css = [`.${uid}{opacity:0}`];
   const frames = (name, list) => {
     list.sort((a, b) => a[0] - b[0]);
@@ -182,10 +183,10 @@ export function renderLightning({ events, loopMs }, colors, { width, height, uid
       [G + Hd, `opacity:${n(mul * 0.9)};stroke-dashoffset:0`],
       [end + linger, 'opacity:0;stroke-dashoffset:0'],
     ];
-    frames(`${id}h`, glowFrames(ev.halo * 0.38, 220));
-    frames(`${id}g`, glowFrames(0.85, 120));
+    frames(`${id}h`, glowFrames(ev.halo * 0.26, 220));
+    frames(`${id}g`, glowFrames(0.5, 120));
     body.push(el('g', { class: uid, style: anim(`${id}h`, ev.at), ...lineAttrs }, use(pathId, { stroke: colors.glow, 'stroke-width': n(14 * th), filter: `url(#${uid}Halo)` })));
-    body.push(el('g', { class: uid, style: anim(`${id}g`, ev.at), ...lineAttrs }, use(pathId, { stroke: colors.glow, 'stroke-width': n(4.6 * th), filter: `url(#${uid}Glow)` })));
+    body.push(el('g', { class: uid, style: anim(`${id}g`, ev.at), ...lineAttrs }, use(pathId, { stroke: colors.glow, 'stroke-width': n(4 * th), filter: `url(#${uid}Glow)` })));
 
     // bolt split into pieces of random length; each grows in turn, then dies on its own
     const pts = ev.points, cl = cumLen(pts), total = cl[cl.length - 1];
@@ -199,11 +200,18 @@ export function renderLightning({ events, loopMs }, colors, { width, height, uid
     }
     cuts.push(pts.length - 1);
     for (let c = 0; c < cuts.length - 1; c++) {
-      const a = cuts[c], b = cuts[c + 1];
+      let a = cuts[c], b = cuts[c + 1];
       if (b <= a) continue;
+      // occasional tiny break between pieces
+      if (c > 0 && b - a > 3 && r() < 0.35) a += 1;
       const t0 = (G * cl[a]) / total, t1 = (G * cl[b]) / total;
       const pid = `${id}c${c}`;
-      defs.push(el('path', { id: pid, d: d(pts.slice(a, b + 1)), pathLength: 100 }));
+      const piece = pts.slice(a, b + 1);
+      defs.push(el('path', { id: pid, d: d(piece), pathLength: 100 }));
+      // thickness varies piece by piece, thicker near the origin
+      const pos = cl[a] / total;
+      const coreW = (2.9 - 1.3 * pos) * (0.7 + r() * 0.55) * th * (ev.kind === 'subtle' ? 0.85 : 1);
+      const rimW = coreW + 0.8 * th; // green shows only as a hairline edge
       // hold: follows the whole-bolt flicker, plus its own rare blink-outs
       const own = flick.map(([tt, v]) => [tt, r() < 0.1 ? 0 : v]);
       // dissolve: random death time, a last stutter, then gone
@@ -221,9 +229,37 @@ export function renderLightning({ events, loopMs }, colors, { width, height, uid
         [death + life, 'opacity:0;stroke-dashoffset:0'],
       ]);
       body.push(el('g', { class: uid, style: anim(pid, ev.at), ...lineAttrs }, [
-        use(pid, { stroke: colors.main, 'stroke-width': n(1.8 * th) }),
-        use(pid, { stroke: colors.core, 'stroke-width': n(0.7 * th), opacity: 0.95 }),
+        use(pid, { stroke: colors.main, 'stroke-width': n(rimW) }),
+        use(pid, { stroke: colors.core, 'stroke-width': n(coreW) }),
       ]));
+
+      // side strands: thin, broken copies running beside the piece
+      const nStr = piece.length > 6 ? (r() < 0.55 ? 1 : 0) + (r() < 0.3 ? 1 : 0) : 0;
+      for (let k = 0; k < nStr; k++) {
+        const from = Math.floor(r() * piece.length * 0.4), to = Math.min(piece.length, from + Math.max(4, Math.floor(piece.length * (0.4 + r() * 0.5))));
+        const side = r() < 0.5 ? -1 : 1, off = (1.6 + r() * 3) * th;
+        const sp = piece.slice(from, to).map(([x, y], j, arr) => {
+          const [px, py] = arr[Math.max(0, j - 1)], [qx, qy] = arr[Math.min(arr.length - 1, j + 1)];
+          const L = Math.hypot(qx - px, qy - py) || 1;
+          const o = side * off + (r() - 0.5) * 2.4;
+          return [x + (-(qy - py) / L) * o, y + ((qx - px) / L) * o];
+        });
+        if (sp.length < 3) continue;
+        const dash = [];
+        for (let q = 0; q < 6; q++) dash.push(n(4 + r() * 14), n(1.5 + r() * 4));
+        const sid = `${pid}s${k}`;
+        const show = t1 + 10 + r() * 50, gone = death - r() * 60;
+        frames(sid, [
+          [show - 1, 'opacity:0'], [show, `opacity:${n(pk * 0.9)}`],
+          ...own.filter(([tt]) => tt > show).map(([tt, v]) => [tt, `opacity:${n(pk * (r() < 0.2 ? 0 : v * 0.85))}`]),
+          [Math.max(show + 20, gone), `opacity:${n(pk * 0.7)}`], [Math.max(show + 20, gone) + 50, 'opacity:0'],
+        ]);
+        const sw = Math.max(0.6, coreW * (0.35 + r() * 0.2));
+        body.push(el('g', { class: uid, style: anim(sid, ev.at), 'stroke-dasharray': dash.join(' '), 'stroke-linecap': 'round', 'stroke-linejoin': 'round', fill: 'none' }, [
+          el('path', { d: d(sp), stroke: colors.main, 'stroke-width': n(sw + 0.6 * th) }),
+          el('path', { d: d(sp), stroke: colors.core, 'stroke-width': n(sw) }),
+        ]));
+      }
     }
 
     // start spark
@@ -250,9 +286,9 @@ export function renderLightning({ events, loopMs }, colors, { width, height, uid
         [Math.max(t1 + 20, death) + 130, 'opacity:0;stroke-dashoffset:0'],
       ]);
       body.push(el('g', { class: uid, style: anim(bid, ev.at), ...lineAttrs }, [
-        use(bid, { stroke: colors.glow, 'stroke-width': n(3 * th), opacity: 0.6, filter: `url(#${uid}Glow)` }),
-        use(bid, { stroke: colors.secondary, 'stroke-width': n(1.05 * th) }),
-        use(bid, { stroke: colors.core, 'stroke-width': n(0.4 * th), opacity: 0.8 }),
+        use(bid, { stroke: colors.glow, 'stroke-width': n(3 * th), opacity: 0.4, filter: `url(#${uid}Glow)` }),
+        use(bid, { stroke: colors.secondary, 'stroke-width': n(1.9 * th) }),
+        use(bid, { stroke: colors.core, 'stroke-width': n(1.2 * th) }),
       ]));
     });
   });
