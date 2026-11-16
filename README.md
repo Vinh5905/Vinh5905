@@ -40,6 +40,17 @@
 </picture>
 
 <picture>
+  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/summary-compact-dark-static.svg">
+  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="./assets/generated/summary-compact-light-static.svg">
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/generated/summary-compact-dark.svg">
+  <source media="(max-width: 600px)" srcset="./assets/generated/summary-compact-light.svg">
+  <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/summary-dark-static.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/generated/summary-light-static.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/generated/summary-dark.svg">
+  <img src="./assets/generated/summary-light.svg" width="100%" alt="Summary: all-time contributions, current streak and longest streak">
+</picture>
+
+<picture>
   <source media="(max-width: 600px) and (prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/landscape-compact-dark-static.svg">
   <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="./assets/generated/landscape-compact-light-static.svg">
   <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/generated/landscape-compact-dark.svg">

@@ -13,6 +13,8 @@ import { renderSkills } from './render/stack.mjs';
 import { renderCharts } from './render/charts.mjs';
 import { renderDivider } from './render/divider.mjs';
 import { readme, staticPage } from './lib/readme.mjs';
+import { renderSummary } from './render/summary.mjs';
+import { contributionDays, streakStats } from './lib/streak.mjs';
 import { renderHero } from './render/hero.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -30,6 +32,8 @@ const yearsDir = join(root, 'data/years');
 const years = existsSync(yearsDir)
   ? readdirSync(yearsDir).filter((f) => /^\d{4}\.json$/.test(f)).map((f) => loadData(join(yearsDir, f))).sort((a, b) => b.year - a.year)
   : [];
+// all-time streak stats from every year file + the rolling calendar
+const streak = streakStats(contributionDays([...years.map((y) => y.calendar), data.calendar], data.calendar[data.calendar.length - 1].date));
 
 const assets = {
   ...Object.fromEntries(Object.entries(config.sections).flatMap(([id, label]) => [
@@ -40,6 +44,8 @@ const assets = {
   'hero-compact': (ctx) => renderHero({ ...ctx, compact: true }),
   skills: (ctx) => renderSkills({ ...ctx, iconSpecs }),
   'skills-compact': (ctx) => renderSkills({ ...ctx, iconSpecs, compact: true }),
+  summary: (ctx) => renderSummary({ ...ctx, streak }),
+  'summary-compact': (ctx) => renderSummary({ ...ctx, streak, compact: true }),
   landscape: (ctx) => renderLandscape(ctx),
   'landscape-compact': (ctx) => renderLandscape({ ...ctx, compact: true }),
   // year0 = this year, year1 = last year, … (stable file names, so README never needs a yearly edit)

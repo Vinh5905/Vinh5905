@@ -7,7 +7,7 @@
 //   env: GITHUB_TOKEN (required)
 //
 // Writes data/github-stats.json (rolling 12 months) and data/years/<year>.json
-// for the last `github.years` calendar years.
+// for every calendar year since the account was created.
 // Safety: all requests run and validate first; on any error the script exits 1
 // and every previous data file (and therefore every image) stays untouched.
 // Files whose content only differs in `fetchedAt` are not rewritten.
@@ -60,11 +60,21 @@ try {
     },
   })]);
 
-  // per-year calendars for the last N calendar years (library's YEAR option)
-  const nYears = config.github.years ?? 3;
+  // per-year calendars for every year since the account was created (library's
+  // YEAR option). All of them feed the all-time total and the streaks; the
+  // README's year toggles show the newest `github.years`.
+  const created = await fetch(client.URL, {
+    method: 'POST',
+    headers: { Authorization: `bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: 'query($login:String!){user(login:$login){createdAt}}', variables: { login: username } }),
+  }).then(async (r) => { if (!r.ok) throw new Error(`createdAt query: HTTP ${r.status}`); return r.json(); });
+  const createdAt = created?.data?.user?.createdAt;
+  if (!createdAt) throw new Error('createdAt query returned no data');
+  files[0][1].createdAt = createdAt.slice(0, 10);
   const thisYear = new Date().getUTCFullYear();
   const yearsDir = join(root, 'data/years');
-  const wanted = Array.from({ length: nYears }, (_, i) => thisYear - i);
+  const wanted = [];
+  for (let y = thisYear; y >= Number(createdAt.slice(0, 4)); y--) wanted.push(y);
   for (const y of wanted) {
     const yi = aggregate.aggregateUserInfo(await client.fetchData(token, username, 1, y));
     files.push([join(yearsDir, `${y}.json`), validate({

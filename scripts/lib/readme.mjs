@@ -45,6 +45,8 @@ ${picture('skills', skillsAlt)}
 
 ${picture('section-activity', config.sections.activity, { motion: false })}
 
+${picture('summary', 'Summary: all-time contributions, current streak and longest streak')}
+
 ${picture('landscape', '3D contribution calendar of the last 12 months: one block per day, block height by number of contributions')}
 
 ${years.join('\n\n')}

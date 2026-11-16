@@ -28,7 +28,7 @@ const cases = [
   { name: 'mobile', width: 390 },
 ];
 for (const c of cases) for (const scheme of ['light', 'dark']) for (const motion of ['no-preference', 'reduce']) {
-  const page = await browser.newPage({ viewport: { width: c.width, height: 3600 }, deviceScaleFactor: c.name === 'mobile' ? 2 : 1 });
+  const page = await browser.newPage({ viewport: { width: c.width, height: 5600 }, deviceScaleFactor: c.name === 'mobile' ? 2 : 1 });
   await page.emulateMedia({ colorScheme: scheme, reducedMotion: motion });
   await page.goto(url);
   await page.waitForLoadState('load');
@@ -37,7 +37,7 @@ for (const c of cases) for (const scheme of ['light', 'dark']) for (const motion
   await page.waitForTimeout(300);
   if (motion === 'no-preference') {
     await page.waitForTimeout(700);
-    await page.screenshot({ path: join(outDir, `${c.name}-${scheme}-entrance.png`), fullPage: false, clip: { x: 0, y: 0, width: c.width, height: Math.min(3600, await page.evaluate(() => document.body.scrollHeight)) } });
+    await page.screenshot({ path: join(outDir, `${c.name}-${scheme}-entrance.png`), fullPage: false, clip: { x: 0, y: 0, width: c.width, height: Math.min(5600, await page.evaluate(() => document.body.scrollHeight)) } });
   }
   await page.waitForTimeout(motion === 'reduce' ? 300 : 4200);
   const report = await page.evaluate(() => {
@@ -54,7 +54,7 @@ for (const c of cases) for (const scheme of ['light', 'dark']) for (const motion
   });
   const tag = `${c.name}-${scheme}-${motion === 'reduce' ? 'static' : 'animated'}`;
   const h = await page.evaluate(() => document.body.scrollHeight);
-  await page.screenshot({ path: join(outDir, `${tag}.png`), clip: { x: 0, y: 0, width: c.width, height: Math.min(3600, h) } });
+  await page.screenshot({ path: join(outDir, `${tag}.png`), clip: { x: 0, y: 0, width: c.width, height: Math.min(5600, h) } });
   const ok = !report.scrollX && !report.broken.length && !report.overflow.length;
   if (!ok) process.exitCode = 1;
   console.log(`${ok ? 'ok  ' : 'FAIL'} ${tag}: article ${report.article}px, imgs ${report.widths.join('/')}, ${report.sources.join(' ')}`

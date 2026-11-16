@@ -9,7 +9,7 @@ config/sources.json          ← phiên bản Devicon / Simple Icons / font / em
 assets/icons/                ← logo đã tải về và metrics.json (kích thước quang học)
 assets/generated/            ← ảnh SVG sinh ra (không sửa tay)
 data/github-stats.json       ← số liệu 12 tháng gần nhất (workflow ghi đè)
-data/years/<năm>.json        ← lịch contribution theo từng năm (3 năm gần nhất)
+data/years/<năm>.json        ← lịch contribution từng năm kể từ khi tạo tài khoản (dùng cho tổng tích luỹ, chuỗi ngày và các mục 今年/昨年/一昨年)
 scripts/                     ← build.mjs, fetch-data.mjs, render/*, lib/*
 .github/workflows/update-profile.yml
 ```
@@ -44,7 +44,7 @@ Tất cả nằm trong `intro` của `profile.config.json`:
 
 Chạy `npm run build`: ảnh và `README.md` được sinh lại. Font IBM Plex Sans JP có đủ kana và kanji thông dụng; nếu thiếu glyph, build dừng và báo lỗi chứ không vẽ ô trống.
 
-Tiêu đề hai mục phân tách nằm ở `sections`. Số năm có nút xem riêng nằm ở `github.years` (mặc định 3).
+Tiêu đề hai mục phân tách nằm ở `sections`. Phần tổng hợp (総コントリビューション / 現在の連続日数 / 最長連続日数) tính theo cùng quy tắc với github-readme-streak-stats: hôm nay chưa có contribution thì chuỗi hiện tại chưa bị ngắt; vòng tròn emerald thể hiện tỉ lệ chuỗi hiện tại ÷ chuỗi dài nhất. Nhãn của phần này nằm trong `labels`. Số năm có nút xem riêng nằm ở `github.years` (mặc định 3).
 
 ## Sửa danh sách công nghệ
 

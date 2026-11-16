@@ -19,6 +19,7 @@ export function validate(d) {
   for (const k of keys)
     if (!Number.isInteger(d?.totals?.[k]) || d.totals[k] < 0) errs.push(`totals.${k} must be a non-negative integer`);
   if (!isYear && !Array.isArray(d?.languages)) errs.push('languages must be an array');
+  if (d?.createdAt !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(d.createdAt)) errs.push('createdAt must be YYYY-MM-DD');
   if (errs.length) throw new Error('invalid stats data:\n  - ' + errs.join('\n  - '));
   return d;
 }

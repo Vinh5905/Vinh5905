@@ -31,7 +31,7 @@ export async function loadFonts(root) {
 // Own serializer: opentype.js' toPathData() "optimize" step mangles some
 // contours at certain sizes/positions, so commands are written verbatim.
 const f2 = (v) => (Math.round(v * 100) / 100).toString();
-function serialize(cmds) {
+export function serialize(cmds) {
   let out = '';
   for (const c of cmds) {
     if (c.type === 'M' || c.type === 'L') out += `${c.type}${f2(c.x)} ${f2(c.y)}`;

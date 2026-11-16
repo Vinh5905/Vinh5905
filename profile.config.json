@@ -86,7 +86,11 @@
     "pullreq": "プルリク",
     "review": "レビュー",
     "repo": "リポジトリ",
-    "yearSuffix": "年"
+    "yearSuffix": "年",
+    "totalContributions": "総コントリビューション",
+    "currentStreak": "現在の連続日数",
+    "longestStreak": "最長連続日数",
+    "present": "現在"
   },
   "sections": {
     "skills": "技術スタック",
