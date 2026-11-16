@@ -100,7 +100,7 @@ Cấu hình ở `lightning` trong `profile.config.json`:
 Mỗi tia: một đốm sáng ở điểm đầu → tia mọc nhanh dọc đường gấp khúc tới điểm cuối → giữ nguyên và chớp nháy không đều → tắt tại chỗ: từng đoạn của tia tắt ở những thời điểm ngẫu nhiên khác nhau (không quét theo một chiều), quầng sáng còn lưu lại một chút rồi mới tắt. Nhánh phụ phóng ra khi tia đi qua gốc nhánh và tắt trước thân chính.
 | `size`, `thickness` | hệ số độ dài và độ dày của tia |
 | `speed` | tốc độ chạy (nhỏ hơn 1 = chạy lâu hơn) |
-| `avoidVertical`, `maxSlope` | `true`: bỏ các tia đánh dọc — hướng tổng thể của tia (từ điểm đầu tới điểm cuối) phải nghiêng không quá `maxSlope` (0.6 ≈ 31°) và tia phải rộng hơn cao; `false`: mọi hướng |
+| `avoidVertical`, `maxSlope` | `true`: bỏ các tia đánh dọc (hướng tổng thể dốc hơn `maxSlope`, 1.0 = 45°, hoặc cao hơn rộng). Các tia còn lại giữ nguyên hình dạng và thời điểm; `false`: giữ tất cả |
 | `glow` | độ sáng quầng xanh |
 | `avoidText` | `false` (mặc định): tia sét có thể chạy khắp ảnh hero, kể cả đè lên chữ; `true`: né chữ và cụm cột |
 | `margin`, `textClearance` | khoảng cách tối thiểu tới mép ảnh và tới chữ |

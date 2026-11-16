@@ -75,20 +75,6 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
     for (let i = 1; i < coarse.length; i++) crackle(coarse[i - 1], coarse[i], step * R(0.2, 0.32), 3, out);
     return out;
   };
-  // overall direction (start → end) within maxSlope of horizontal, and a footprint
-  // wider than it is tall, so bolts sweep across instead of dropping down
-  const sideways = (pts, maxSlope) => {
-    const [x0, y0] = pts[0], [x1, y1] = pts[pts.length - 1];
-    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
-    const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
-    if (!(Math.abs(y1 - y0) <= maxSlope * Math.abs(x1 - x0) && h <= 0.75 * w)) return false;
-    // and no steep stretch along the way (any 3 consecutive coarse steps)
-    for (let i = 3; i < pts.length; i++) {
-      const dx = Math.abs(pts[i][0] - pts[i - 3][0]), dy = Math.abs(pts[i][1] - pts[i - 3][1]);
-      if (dy > 1.1 * dx) return false;
-    }
-    return true;
-  };
   const lengthOf = (pts) => pts.reduce((s, p, i) => (i ? s + Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) : 0), 0);
 
   const events = [];
@@ -116,8 +102,6 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
       const step = R(26, 40);
       const c = course(S, heading, len, step, R(0.22, 0.42));
       if (c.walked < len * 0.6) continue;
-      // no vertical strikes: the bolt as a whole must run sideways
-      if (cfg.avoidVertical !== false && !sideways(c.pts, cfg.maxSlope ?? 0.84)) continue;
       const points = detail(c.pts, step);
       const branches = [];
       const nb = rnd() < K.brP ? RI(...K.br) : 0;
@@ -127,11 +111,10 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
         const dir = Math.atan2(c.pts[k + 1][1] - c.pts[k][1], c.pts[k + 1][0] - c.pts[k][0]) + (rnd() < 0.5 ? -1 : 1) * R(0.5, 1.1);
         const bc = course(c.pts[k], dir, len * R(0.12, 0.3), R(16, 26), 0.5);
         if (bc.pts.length < 3) continue;
-        if (cfg.avoidVertical !== false && !sideways(bc.pts, 1.2)) continue;
-        branches.push({ at: k / (c.pts.length - 1), points: detail(bc.pts, 20) });
+        branches.push({ at: k / (c.pts.length - 1), points: detail(bc.pts, 20), coarse: bc.pts });
       }
       made = {
-        kind, start: S, points, branches,
+        kind, start: S, points, branches, coarse: c.pts,
         length: lengthOf(points),
         at: Math.round(t),
         grow: Math.round(R(...K.grow) * Math.sqrt(size) / (cfg.speed ?? 1)),
@@ -144,6 +127,19 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
     }
     if (made) { events.push(made); prev = made; }
     t += (made ? made.grow + made.hold + made.fade : 0) + (rnd() < cfg.doubleChance ? R(0.12, 0.35) * 1000 : R(...cfg.gapSeconds) * 1000);
+  }
+  // Drop vertical strikes AFTER generation: every other discharge keeps exactly
+  // the same shape and timing as without this filter.
+  if (cfg.avoidVertical) {
+    const vertical = (pts, maxSlope) => {
+      const [x0, y0] = pts[0], [x1, y1] = pts[pts.length - 1];
+      const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+      const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
+      return Math.abs(y1 - y0) > maxSlope * Math.abs(x1 - x0) || h > maxSlope * w;
+    };
+    const kept = events.filter((ev) => !vertical(ev.coarse, cfg.maxSlope ?? 1));
+    for (const ev of kept) ev.branches = ev.branches.filter((b) => !vertical(b.coarse, 1.2));
+    return { events: kept, loopMs, dropped: events.length - kept.length };
   }
   return { events, loopMs };
 }
