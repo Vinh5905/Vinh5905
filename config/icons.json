@@ -1,0 +1,22 @@
+{
+  "$comment": "Logo chính thức lấy từ Devicon (MIT) hoặc Simple Icons (CC0). `npm run vendor` tải về assets/icons/. `dark` là bảng thay màu cho theme tối (biến thể đảo màu của chính thương hiệu), áp dụng theo thuộc tính fill/stop-color — không sửa chuỗi SVG.",
+  "python":         { "label": "Python",          "source": "devicon", "path": "python/python-original.svg" },
+  "pandas":         { "label": "pandas",          "source": "devicon", "path": "pandas/pandas-original.svg", "dark": { "#130754": "#FFFFFF" } },
+  "postgresql":     { "label": "PostgreSQL",      "source": "devicon", "path": "postgresql/postgresql-original.svg" },
+  "airflow":        { "label": "Apache Airflow",  "source": "devicon", "path": "apacheairflow/apacheairflow-original.svg" },
+  "dbt":            { "label": "dbt",             "source": "simple-icons@15.4.0", "path": "dbt.svg", "color": "#FF694B", "note": "Simple Icons removed dbt in v16.0.0; this is the last published CC0 mark (v15.4.0)." },
+  "minio":          { "label": "MinIO",           "source": "simple-icons", "path": "minio.svg", "color": "#C72E49" },
+  "cloudflare-r2":  { "label": "Cloudflare R2 (Cloudflare logo)", "source": "devicon", "path": "cloudflare/cloudflare-original.svg", "note": "No official standalone R2 mark is published in an icon set; the Cloudflare logo stands in and the alt text says so." },
+  "docker":         { "label": "Docker",          "source": "devicon", "path": "docker/docker-original.svg" },
+  "kubernetes":     { "label": "Kubernetes",      "source": "devicon", "path": "kubernetes/kubernetes-original.svg" },
+  "helm":           { "label": "Helm",            "source": "devicon", "path": "helm/helm-original.svg", "dark": { "#0F1689": "#FFFFFF" } },
+  "argocd":         { "label": "Argo CD",         "source": "devicon", "path": "argocd/argocd-original.svg" },
+  "terraform":      { "label": "Terraform",       "source": "devicon", "path": "terraform/terraform-original.svg" },
+  "ansible":        { "label": "Ansible",         "source": "devicon", "path": "ansible/ansible-original.svg", "dark": { "#1A1918": "#FFFFFF", "#FFF": "#1A1918" } },
+  "aws":            { "label": "AWS",             "source": "devicon", "path": "amazonwebservices/amazonwebservices-original.svg", "dark": { "#252f3e": "#FFFFFF" }, "note": "The AWS logo is a wordmark; no symbol-only variant exists." },
+  "github-actions": { "label": "GitHub Actions",  "source": "devicon", "path": "githubactions/githubactions-original.svg" },
+  "git":            { "label": "Git",             "source": "devicon", "path": "git/git-original.svg" },
+  "linux":          { "label": "Linux",           "source": "devicon", "path": "linux/linux-original.svg" },
+  "prometheus":     { "label": "Prometheus",      "source": "devicon", "path": "prometheus/prometheus-original.svg" },
+  "grafana":        { "label": "Grafana",         "source": "devicon", "path": "grafana/grafana-original.svg" }
+}

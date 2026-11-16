@@ -1,0 +1,18 @@
+{
+  "$comment": "Nguồn được ghim phiên bản cho asset bên thứ ba. Thay đổi ở đây rồi chạy `npm run vendor`.",
+  "devicon":       { "base": "https://cdn.jsdelivr.net/gh/devicons/devicon@v2.18.0/icons/", "license": "MIT", "home": "https://github.com/devicons/devicon" },
+  "simple-icons":  { "base": "https://cdn.jsdelivr.net/npm/simple-icons@16.38.0/icons/", "license": "CC0-1.0", "home": "https://github.com/simple-icons/simple-icons" },
+  "simple-icons@15.4.0": { "base": "https://cdn.jsdelivr.net/npm/simple-icons@15.4.0/icons/", "license": "CC0-1.0", "home": "https://github.com/simple-icons/simple-icons" },
+  "emoji": {
+    "1f44b": { "url": "https://raw.githubusercontent.com/googlefonts/noto-emoji/99701e07d3d1fe1bdbcdb14964547f0fd592966f/2D/svg/emoji_u1f44b.svg", "license": "Apache-2.0", "home": "https://github.com/googlefonts/noto-emoji" }
+  },
+  "fonts": {
+    "license": "SIL Open Font License 1.1",
+    "home": "https://github.com/google/fonts/tree/main/ofl/ibmplexsansjp",
+    "files": {
+      "medium":   { "url": "https://raw.githubusercontent.com/google/fonts/cc39c4c2c304bc368c9b7c311ea2bcc6013299fe/ofl/ibmplexsansjp/IBMPlexSansJP-Medium.ttf",   "sha256": "1d09f5e25b19e54b2c55da70de58f9962512c3e07ed7c3e1c9bad77ace5c22e6" },
+      "semibold": { "url": "https://raw.githubusercontent.com/google/fonts/cc39c4c2c304bc368c9b7c311ea2bcc6013299fe/ofl/ibmplexsansjp/IBMPlexSansJP-SemiBold.ttf", "sha256": "5985c29d2d5d444072915cf5874dc80e0a3f5fadbf14a9e3013a03a8fe6d7ff5" },
+      "bold":     { "url": "https://raw.githubusercontent.com/google/fonts/cc39c4c2c304bc368c9b7c311ea2bcc6013299fe/ofl/ibmplexsansjp/IBMPlexSansJP-Bold.ttf",     "sha256": "bd8a98b9b55c9ea3f0fa1ed094c15981788cc9a41b0357f4453014fd1d44da19" }
+    }
+  }
+}

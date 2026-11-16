@@ -1,0 +1,44 @@
+{
+  "$comment": "Design tokens. Hai theme dùng chung hình học; ánh sáng, bóng, màu mặt khối và icon được chỉnh riêng. Xem docs/DESIGN.md.",
+  "light": {
+    "ink": "#17251E",
+    "ink2": "#52665B",
+    "ink3": "#6F8278",
+    "accent": "#059669",
+    "hairline": "#D3E0D8",
+    "plate": { "top": "#F1F6F3", "left": "#E1EBE5", "right": "#D2DFD7", "edge": "#FFFFFF" },
+    "levels": ["#E2EBE5", "#BDEDD5", "#6FD6A6", "#1DAE78", "#047857"],
+    "shade": { "left": -0.08, "right": -0.17, "rim": 0.10, "rimOpacity": 0.0 },
+    "shadow": { "color": "#0F2A1E", "opacity": 0.12, "length": 0.32 },
+    "pedestal": { "top": "#F3F8F5", "left": "#E0EAE4", "right": "#CCDBD2", "rim": "#FFFFFF", "glow": "#059669", "glowOpacity": 0.0, "contact": 0.08 },
+    "other": "#C7D3CC",
+    "sheen": { "color": "#7BE7BA", "opacity": 0.55 },
+    "langLightness": [0.40, 0.58],
+    "radarFill": 0.16
+  },
+  "dark": {
+    "ink": "#E6EDF3",
+    "ink2": "#9DAFA5",
+    "ink3": "#7E9187",
+    "accent": "#34D399",
+    "hairline": "#24332C",
+    "plate": { "top": "#141D19", "left": "#101714", "right": "#0B110E", "edge": "#22302A" },
+    "levels": ["#19231F", "#155A42", "#178B60", "#25B47D", "#4FE0A6"],
+    "shade": { "left": -0.07, "right": -0.13, "rim": 0.16, "rimOpacity": 0.55 },
+    "shadow": { "color": "#000000", "opacity": 0.42, "length": 0.32 },
+    "pedestal": { "top": "#1E2924", "left": "#17201C", "right": "#111915", "rim": "#3E5A4D", "glow": "#34D399", "glowOpacity": 0.35, "contact": 0.3 },
+    "other": "#4A5A53",
+    "sheen": { "color": "#C9FFE6", "opacity": 0.45 },
+    "langLightness": [0.52, 0.68],
+    "radarFill": 0.18
+  },
+  "motion": {
+    "ease": "cubic-bezier(.22,.68,.16,1)",
+    "entranceMs": 900,
+    "weekStaggerMs": 16,
+    "iconStaggerMs": 70,
+    "bobPx": 3,
+    "bobPeriodS": 6.4,
+    "sheenPeriodS": 9
+  }
+}

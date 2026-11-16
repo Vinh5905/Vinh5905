@@ -1,84 +1,62 @@
-<h1 align="center">こんにちは 👋！<br />私は ファム・ホアン・ヴィン です</h1>
-<h3 align="center">
-データエンジニアという職種に強い興味があり、<br />
-将来的には日本で働きたいと考えています。<br />
+<!--
+  GitHub profile README for Vinh5905.
+  Images in assets/generated/ are produced by `npm run build` (see docs/CUSTOMIZE.md).
+  The intro paragraph below is plain text on purpose: edit it here.
+-->
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/hero-dark-static.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/generated/hero-light-static.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/generated/hero-dark.svg">
+  <img src="./assets/generated/hero-light.svg" width="760" alt="こんにちは 👋！ 私は ファム・ホアン・ヴィン です">
+</picture>
+
+<p>
+データエンジニアという職種に<br>
+強い興味があり、将来的には<br>
+日本で働きたいと考えています。<br>
 よろしくお願いします！😊
-</h3>
-
----
-
-- 🌱 現在学習中: **Django REST API、Docker, Dagster**
-- 💬 聞いてください: **Python、データ技術**
-- 📫 連絡先: **hoangvinh9257@gmail.com**
-
----
-
-<h3 align="left">🌐 連絡方法:</h3>
-<p align="left">
-    <a href="https://www.facebook.com/kevin.pham.378121" target="_blank">
-        <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/facebook.svg" alt="facebook" height="30" width="40" />
-    </a>
 </p>
 
----
+<br>
 
-<h3 align="left">🛠️ 使用できる言語とツール:</h3>
-<p align="left" style="display: flex; flex-wrap: wrap; gap: 8px;">
-    <a href="https://www.python.org" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python" width="40" height="40"/>
-    </a>
-    <a href="https://www.w3schools.com/cpp/" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++" width="40" height="40"/>
-    </a>
-    <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML" width="40" height="40"/>
-    </a>
-    <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS" width="40" height="40"/>
-    </a>
-    <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
-        <img src="https://www.vectorlogo.zone/logos/tailwindcss/tailwindcss-icon.svg" alt="TailwindCSS" width="40" height="40"/>
-    </a>
-    <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original-wordmark.svg" alt="React" width="40" height="40"/>
-    </a>
-    <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
-        <img src="https://cdn.worldvectorlogo.com/logos/nextjs-2.svg" alt="Next.js" width="40" height="40"/>
-    </a>
-    <a href="https://www.djangoproject.com/" target="_blank" rel="noreferrer">
-        <img src="https://cdn.worldvectorlogo.com/logos/django.svg" alt="Django" width="40" height="40"/>
-    </a>
-    <a href="https://www.microsoft.com/en-us/sql-server" target="_blank" rel="noreferrer">
-        <img src="https://www.svgrepo.com/show/303229/microsoft-sql-server-logo.svg" alt="SQL Server" width="40" height="40"/>
-    </a>
-    <a href="https://www.mysql.com/" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original-wordmark.svg" alt="MySQL" width="40" height="40"/>
-    </a>
-    <a href="https://www.postgresql.org" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="PostgreSQL" width="40" height="40"/>
-    </a>
-    <a href="https://pandas.pydata.org/" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/2ae2a900d2f041da66e950e4d48052658d850630/icons/pandas/pandas-original.svg" alt="Pandas" width="40" height="40"/>
-    </a>
-    <a href="https://seaborn.pydata.org/" target="_blank" rel="noreferrer">
-        <img src="https://seaborn.pydata.org/_images/logo-mark-lightbg.svg" alt="Seaborn" width="40" height="40"/>
-    </a>
-    <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="Docker" width="40" height="40"/>
-    </a>
-    <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
-        <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git" width="40" height="40"/>
-    </a>
-</p>
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/stack-data-dark-static.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/generated/stack-data-light-static.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/generated/stack-data-dark.svg">
+  <img src="./assets/generated/stack-data-light.svg" width="376" align="top" alt="Data Engineering: Python, pandas, PostgreSQL, Apache Airflow, dbt, MinIO, Cloudflare R2 (shown with the Cloudflare logo)">
+</picture>
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/stack-devops-dark-static.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/generated/stack-devops-light-static.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/generated/stack-devops-dark.svg">
+  <img src="./assets/generated/stack-devops-light.svg" width="376" align="top" alt="DevOps &amp; Cloud: Docker, Kubernetes, Helm, Argo CD, Terraform, Ansible, AWS, GitHub Actions, Git, Linux, Prometheus, Grafana">
+</picture>
 
----
+<br>
 
-<h3 align="left">📊 GitHub ステータス:</h3>
+<picture>
+  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/landscape-compact-dark-static.svg">
+  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="./assets/generated/landscape-compact-light-static.svg">
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/generated/landscape-compact-dark.svg">
+  <source media="(max-width: 600px)" srcset="./assets/generated/landscape-compact-light.svg">
+  <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/landscape-dark-static.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/generated/landscape-light-static.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/generated/landscape-dark.svg">
+  <img src="./assets/generated/landscape-light.svg" width="760" alt="3D contribution calendar of the past year: one block per day, block height by number of contributions">
+</picture>
 
-<p align="center">
-    <img src="https://github-readme-stats.vercel.app/api/top-langs?username=vinh5905&show_icons=true&locale=ja&layout=compact" alt="使用言語ランキング" />
-</p>
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/languages-dark-static.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/generated/languages-light-static.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/generated/languages-dark.svg">
+  <img src="./assets/generated/languages-light.svg" width="376" align="top" alt="Donut chart: commits of the past year grouped by repository primary language">
+</picture>
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./assets/generated/activity-dark-static.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="./assets/generated/activity-light-static.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/generated/activity-dark.svg">
+  <img src="./assets/generated/activity-light.svg" width="376" align="top" alt="Radar chart on a log scale: commits, issues, pull requests, reviews and new repositories in the past year">
+</picture>
 
-<p align="center">
-    <img src="https://github-readme-streak-stats.herokuapp.com/?user=vinh5905" alt="連続記録" />
-</p>
+<sub>アニメーションなしの画像は <a href="./docs/static.md">静止画版</a> で見られます。</sub>

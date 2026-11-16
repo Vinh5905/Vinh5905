@@ -1,0 +1,23 @@
+{
+  "name": "vinh5905-profile",
+  "private": true,
+  "type": "module",
+  "description": "Generator for the Vinh5905 GitHub profile README assets (emerald desk-model theme).",
+  "scripts": {
+    "vendor": "node scripts/vendor-assets.mjs && node scripts/measure-icons.mjs",
+    "fetch": "node scripts/fetch-data.mjs",
+    "fetch:public": "node scripts/fetch-public.mjs Vinh5905",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/preview.mjs",
+    "verify": "node scripts/verify.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@xmldom/xmldom": "0.9.12",
+    "opentype.js": "2.0.0"
+  },
+  "devDependencies": {
+    "github-markdown-css": "5.9.0",
+    "marked": "18.2.0"
+  }
+}

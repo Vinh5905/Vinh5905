@@ -1,0 +1,84 @@
+name: Update profile assets
+
+on:
+  schedule:
+    - cron: "17 20 * * *"   # daily 03:17 Asia/Saigon (20:17 UTC)
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:                  # only sources; generated files never re-trigger this
+      - "profile.config.json"
+      - "config/**"
+      - "scripts/**"
+      - "assets/icons/**"
+      - "assets/emoji/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/update-profile.yml"
+
+permissions:
+  contents: write           # needed only to push the regenerated files
+
+concurrency:
+  group: profile-assets
+  cancel-in-progress: false
+
+env:
+  LIB_REF: 7d95e7d4cdc028dd1e1cbd957d65f35efb12ae39   # yoshi389111/github-profile-3d-contrib v0.9.3
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check out github-profile-3d-contrib (pinned)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: yoshi389111/github-profile-3d-contrib
+          ref: ${{ env.LIB_REF }}
+          path: .cache/3d-contrib
+          persist-credentials: false
+
+      - name: Compile library data layer
+        working-directory: .cache/3d-contrib
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx tsc
+
+      - name: Install generator
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/fonts
+          key: fonts-${{ hashFiles('config/sources.json') }}
+
+      # If this step fails, the job stops: the last good data and images stay.
+      - name: Fetch contribution data
+        env:
+          # Optional: add a PROFILE_TOKEN secret (classic PAT, read:user) to include
+          # private contributions; otherwise the built-in token is used.
+          GITHUB_TOKEN: ${{ secrets.PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: node scripts/fetch-data.mjs --lib .cache/3d-contrib/dist0/src
+
+      - name: Render SVG assets
+        run: node scripts/build.mjs
+
+      - name: Commit if changed
+        run: |
+          git add data/github-stats.json assets/generated
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "chore: update profile assets"
+          git push
