@@ -2,10 +2,10 @@
   "schema": 1,
   "kind": "year",
   "year": 2026,
-  "source": "public-preview",
-  "sourceNote": "Public contributions page (exact per-day counts). Replaced by GraphQL data on the next workflow run.",
+  "source": "github-graphql",
+  "sourceNote": "yoshi389111/github-profile-3d-contrib fetchData(year) + aggregateUserInfo (unmodified).",
   "username": "Vinh5905",
-  "fetchedAt": "2026-11-16T03:14:58.905Z",
+  "fetchedAt": "2026-11-16T03:26:12.983Z",
   "calendar": [
     {
       "date": "2026-01-01",
@@ -1604,7 +1604,7 @@
     },
     {
       "date": "2026-11-16",
-      "count": 7,
+      "count": 8,
       "level": 1
     },
     {
@@ -1834,6 +1834,6 @@
     }
   ],
   "totals": {
-    "contributions": 943
+    "contributions": 944
   }
 }

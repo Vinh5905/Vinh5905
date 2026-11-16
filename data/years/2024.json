@@ -2,10 +2,10 @@
   "schema": 1,
   "kind": "year",
   "year": 2024,
-  "source": "public-preview",
-  "sourceNote": "Public contributions page (exact per-day counts). Replaced by GraphQL data on the next workflow run.",
+  "source": "github-graphql",
+  "sourceNote": "yoshi389111/github-profile-3d-contrib fetchData(year) + aggregateUserInfo (unmodified).",
   "username": "Vinh5905",
-  "fetchedAt": "2026-11-16T03:15:12.144Z",
+  "fetchedAt": "2026-11-16T03:26:12.983Z",
   "calendar": [
     {
       "date": "2024-01-01",
