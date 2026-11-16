@@ -1,9 +1,9 @@
 // Random green lightning, baked into an SVG with CSS keyframes.
 //
-// Look & motion modelled on a travelling electric arc: a long, finely
-// crackled path; a bright head runs along it while the tail breaks up into
-// shrinking fragments behind it, so a discharge "travels" for ~0.7–1.8 s
-// instead of popping in and out. A wide soft halo lights the background.
+// Look & motion modelled on an electric arc: a long, finely crackled path is
+// drawn quickly from its start to its end, holds and flickers, then dies out
+// in scattered pieces while its glow lingers. A wide soft halo lights the
+// background.
 //
 // Every discharge is generated from a seeded PRNG (reproducible): its own
 // start, heading, wandering course, length, crackle, branches, speed,
@@ -20,10 +20,10 @@ const mulberry32 = (a) => () => {
 };
 
 const CLASSES = {
-  //        path length px    life ms       branches  grow share of life      peak  halo
-  subtle: { len: [260, 420], dur: [950, 1300], br: [0, 1], brP: 0.35, grow: [0.3, 0.4], peak: 0.88, halo: 0.6 },
-  medium: { len: [400, 620], dur: [1250, 1700], br: [1, 2], brP: 1, grow: [0.32, 0.42], peak: 0.95, halo: 0.8 },
-  strong: { len: [560, 900], dur: [1600, 2300], br: [2, 4], brP: 1, grow: [0.35, 0.45], peak: 1, halo: 1 },
+  //        path length px    grow ms      hold ms      dissolve ms
+  subtle: { len: [260, 420], grow: [240, 380], hold: [160, 300], fade: [260, 380], br: [0, 1], brP: 0.35, peak: 0.88, halo: 0.6 },
+  medium: { len: [400, 620], grow: [320, 480], hold: [220, 380], fade: [320, 460], br: [1, 2], brP: 1, peak: 0.95, halo: 0.8 },
+  strong: { len: [560, 900], grow: [420, 600], hold: [300, 480], fade: [380, 520], br: [2, 4], brP: 1, peak: 1, halo: 1 },
 };
 
 export function generateLightning(cfg, { width, height, keepOut = [] }) {
@@ -80,7 +80,7 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
   const events = [];
   const loopMs = cfg.loopSeconds * 1000;
   let t = R(0.6, 1.4) * 1000, prev = null;
-  while (t < loopMs - 2400) {
+  while (t < loopMs - 1800) {
     const kind = pickClass();
     const K = CLASSES[kind];
     let made = null;
@@ -117,46 +117,36 @@ export function generateLightning(cfg, { width, height, keepOut = [] }) {
         kind, start: S, points, branches,
         length: lengthOf(points),
         at: Math.round(t),
-        travel: Math.round(R(...K.dur) * Math.sqrt(size) * (cfg.speed ? 1 / cfg.speed : 1)),
-        grow: R(...K.grow),
+        grow: Math.round(R(...K.grow) * Math.sqrt(size) / (cfg.speed ?? 1)),
+        hold: Math.round(R(...K.hold) / (cfg.speed ?? 1)),
+        fade: Math.round(R(...K.fade) / (cfg.speed ?? 1)),
         peak: K.peak * R(0.85, 1),
         halo: K.halo * (cfg.glow ?? 1) * R(0.8, 1.1),
         seed: rnd(),
       };
     }
     if (made) { events.push(made); prev = made; }
-    t += (made?.travel ?? 0) + (rnd() < cfg.doubleChance ? R(0.12, 0.35) * 1000 : R(...cfg.gapSeconds) * 1000);
+    t += (made ? made.grow + made.hold + made.fade : 0) + (rnd() < cfg.doubleChance ? R(0.12, 0.35) * 1000 : R(...cfg.gapSeconds) * 1000);
   }
   return { events, loopMs };
 }
 
 /**
- * Travelling dash pattern (units: % of path length, pathLength=100):
- *   tail fragments (tiny dashes, wide gaps → larger dashes, small gaps)
- *   then the solid head, then a long gap so the pattern never repeats.
- * Animating stroke-dashoffset from +span to -100 moves the whole thing along
- * the path: head first, the crumbling tail following it out.
+ * Rendering, per discharge (ms from its start):
+ *   0 → G      grow: the bolt is drawn piece by piece from start to end
+ *   G → G+H    hold: full bolt, whole-bolt flicker + random pieces blinking out
+ *   G+H → end  dissolve: every piece dies at its own random moment after a last
+ *              stutter — scattered across the bolt, never a sweep — while the
+ *              glow and halo linger as an after-image
  */
-function travelPattern(head, r) {
-  const frags = [];
-  let tail = 0;
-  const count = 14 + Math.floor(r() * 8);
-  for (let i = 0; i < count; i++) {
-    const f = (i + 1) / count; // 0 = far back … 1 = next to the head
-    const dash = 0.12 + f * f * 2.4 + r() * 0.5;
-    const gap = 0.3 + (1 - f) * 1.9 + r() * 0.8;
-    frags.push(n(dash), n(gap));
-    tail += dash + gap;
-  }
-  const span = tail + head;
-  return { dasharray: `${frags.join(' ')} ${n(head)} 600`, span };
-}
-
 export function renderLightning({ events, loopMs }, colors, { width, height, uid = 'lt', thickness = 1 }) {
   const pct = (ms) => `${((Math.max(0, ms) / loopMs) * 100).toFixed(3)}%`;
   const d = (pts) => 'M' + pts.map(([x, y]) => `${n(x)} ${n(y)}`).join('L');
   const css = [`.${uid}{opacity:0}`];
-  const frames = (name, list) => css.push(`@keyframes ${name}{${list.map(([ms, decl]) => `${pct(ms)}{${decl}}`).join('')}100%{opacity:0}}`);
+  const frames = (name, list) => {
+    list.sort((a, b) => a[0] - b[0]);
+    css.push(`@keyframes ${name}{${list.map(([ms, decl]) => `${pct(ms)}{${decl}}`).join('')}100%{opacity:0}}`);
+  };
   const anim = (name, start) => `animation:${name} ${loopMs}ms linear ${start}ms infinite`;
   const th = thickness;
   const defs = [
@@ -164,73 +154,105 @@ export function renderLightning({ events, loopMs }, colors, { width, height, uid
     el('filter', { id: `${uid}Halo`, filterUnits: 'userSpaceOnUse', x: 0, y: 0, width, height }, el('feGaussianBlur', { stdDeviation: 11 })),
   ];
   const body = [];
+  const use = (ref, attrs) => el('use', { href: `#${ref}`, 'xlink:href': `#${ref}`, ...attrs });
+  const lineAttrs = { 'stroke-dasharray': '100 101', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', fill: 'none' };
+  const cumLen = (pts) => { const c = [0]; for (let i = 1; i < pts.length; i++) c.push(c[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); return c; };
 
   events.forEach((ev, i) => {
     const id = `${uid}${i}`;
     const r = mulberry32(Math.floor(ev.seed * 1e9));
-    const T = ev.travel;
-    const pat = travelPattern(100, r); // solid part = whole path: grow fully, then crumble from the start
-    defs.push(el('path', { id: `${id}p`, d: d(ev.points), pathLength: 100 }));
+    const G = ev.grow, Hd = ev.hold, F = ev.fade;
+    const end = G + Hd + F;
+    const pk = ev.peak;
 
-    // dash travel + irregular flicker of the whole discharge
-    // front of the bolt: 0 → end of path during the fast grow (Tg), then the
-    // crumbling tail sweeps through it until the whole pattern has left (T)
-    const Tg = T * ev.grow;
-    const offsetAt = (tt) => tt <= Tg
-      ? pat.span - (100 * tt) / Tg
-      : pat.span - 100 - ((pat.span) * (tt - Tg)) / (T - Tg);
+    // whole-bolt flicker during the hold: irregular steps
     const flick = [];
-    for (let tt = 30; tt < T - 30; tt += 30 + r() * 60) {
-      const v = r() < 0.07 ? 0.3 : r() < 0.3 ? 0.68 + r() * 0.2 : 0.9 + r() * 0.1;
-      flick.push([tt, v]);
-    }
-    if (!flick.some(([tt]) => Math.abs(tt - Tg) < 15)) flick.push([Tg, 1]);
-    flick.sort((a, b) => a[0] - b[0]);
-    const travelFrames = (opMul, extra = 0) => [
-      [-1, `opacity:0;stroke-dashoffset:${n(pat.span)}`],
-      [0, `opacity:${n(opMul * ev.peak)};stroke-dashoffset:${n(pat.span)}`],
-      ...flick.map(([tt, v]) => [tt, `opacity:${n(Math.min(1, opMul * ev.peak * v))};stroke-dashoffset:${n(offsetAt(tt))}`]),
-      [T, `opacity:${n(opMul * ev.peak * 0.7)};stroke-dashoffset:-100`],
-      [T + extra, 'opacity:0;stroke-dashoffset:-100'],
+    for (let tt = G + 15 + r() * 25; tt < G + Hd - 10; tt += 22 + r() * 48)
+      flick.push([tt, r() < 0.12 ? 0.35 : r() < 0.35 ? 0.65 + r() * 0.2 : 0.92 + r() * 0.08]);
+
+    // glow + halo: drawn with the bolt, flash at full length, linger as after-image
+    const pathId = `${id}p`;
+    defs.push(el('path', { id: pathId, d: d(ev.points), pathLength: 100 }));
+    const glowFrames = (mul, linger) => [
+      [-1, 'opacity:0;stroke-dashoffset:100'],
+      [0, `opacity:${n(mul * 0.8)};stroke-dashoffset:100`],
+      [G, `opacity:${n(mul)};stroke-dashoffset:0`],
+      [G + 40, `opacity:${n(Math.min(1, mul * 1.35))};stroke-dashoffset:0`],
+      ...flick.map(([tt, v]) => [tt, `opacity:${n(mul * (0.75 + 0.25 * v))};stroke-dashoffset:0`]),
+      [G + Hd, `opacity:${n(mul * 0.9)};stroke-dashoffset:0`],
+      [end + linger, 'opacity:0;stroke-dashoffset:0'],
     ];
-    frames(`${id}t`, travelFrames(1));
-    frames(`${id}h`, travelFrames(ev.halo, 120)); // halo lingers a touch longer
-    const use = (attrs) => el('use', { href: `#${id}p`, 'xlink:href': `#${id}p`, ...attrs });
-    const common = { 'stroke-dasharray': pat.dasharray, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', fill: 'none' };
-    // wide ambient halo (lights the background), glow, mint bolt, white core
-    body.push(el('g', { class: uid, style: anim(`${id}h`, ev.at), ...common }, [
-      use({ stroke: colors.glow, 'stroke-width': n(14 * th), opacity: 0.38, filter: `url(#${uid}Halo)` }),
-    ]));
-    body.push(el('g', { class: uid, style: anim(`${id}t`, ev.at), ...common }, [
-      use({ stroke: colors.glow, 'stroke-width': n(4.6 * th), opacity: 0.85, filter: `url(#${uid}Glow)` }),
-      use({ stroke: colors.main, 'stroke-width': n(1.8 * th) }),
-      use({ stroke: colors.core, 'stroke-width': n(0.7 * th), opacity: 0.95 }),
-    ]));
+    frames(`${id}h`, glowFrames(ev.halo * 0.38, 220));
+    frames(`${id}g`, glowFrames(0.85, 120));
+    body.push(el('g', { class: uid, style: anim(`${id}h`, ev.at), ...lineAttrs }, use(pathId, { stroke: colors.glow, 'stroke-width': n(14 * th), filter: `url(#${uid}Halo)` })));
+    body.push(el('g', { class: uid, style: anim(`${id}g`, ev.at), ...lineAttrs }, use(pathId, { stroke: colors.glow, 'stroke-width': n(4.6 * th), filter: `url(#${uid}Glow)` })));
+
+    // bolt split into pieces of random length; each grows in turn, then dies on its own
+    const pts = ev.points, cl = cumLen(pts), total = cl[cl.length - 1];
+    const nPieces = Math.max(6, Math.min(11, Math.round(total / 60)));
+    const cuts = [0];
+    for (let k = 1; k < nPieces; k++) {
+      const target = (total * (k + (r() - 0.5) * 0.6)) / nPieces;
+      let idx = cl.findIndex((v) => v >= target);
+      idx = Math.max(cuts[cuts.length - 1] + 2, Math.min(pts.length - 3, idx));
+      if (idx > cuts[cuts.length - 1]) cuts.push(idx);
+    }
+    cuts.push(pts.length - 1);
+    for (let c = 0; c < cuts.length - 1; c++) {
+      const a = cuts[c], b = cuts[c + 1];
+      if (b <= a) continue;
+      const t0 = (G * cl[a]) / total, t1 = (G * cl[b]) / total;
+      const pid = `${id}c${c}`;
+      defs.push(el('path', { id: pid, d: d(pts.slice(a, b + 1)), pathLength: 100 }));
+      // hold: follows the whole-bolt flicker, plus its own rare blink-outs
+      const own = flick.map(([tt, v]) => [tt, r() < 0.1 ? 0 : v]);
+      // dissolve: random death time, a last stutter, then gone
+      const death = G + Hd + r() * F * 0.7;
+      const life = 60 + r() * 120;
+      frames(pid, [
+        [t0 - 1, 'opacity:0;stroke-dashoffset:100'],
+        [t0, `opacity:${n(pk)};stroke-dashoffset:100`],
+        [t1, `opacity:${n(pk)};stroke-dashoffset:0`],
+        [G + 30, 'opacity:1;stroke-dashoffset:0'],
+        ...own.map(([tt, v]) => [tt, `opacity:${n(pk * v)};stroke-dashoffset:0`]),
+        [death, `opacity:${n(pk * 0.9)};stroke-dashoffset:0`],
+        [death + life * 0.25, `opacity:${n(pk * 0.2)};stroke-dashoffset:0`],
+        [death + life * 0.45, `opacity:${n(pk * 0.75)};stroke-dashoffset:0`],
+        [death + life, 'opacity:0;stroke-dashoffset:0'],
+      ]);
+      body.push(el('g', { class: uid, style: anim(pid, ev.at), ...lineAttrs }, [
+        use(pid, { stroke: colors.main, 'stroke-width': n(1.8 * th) }),
+        use(pid, { stroke: colors.core, 'stroke-width': n(0.7 * th), opacity: 0.95 }),
+      ]));
+    }
 
     // start spark
-    frames(`${id}s`, [[-1, 'opacity:0'], [0, 'opacity:1'], [60 + r() * 60, 'opacity:.8'], [Math.min(T * 0.4, 260), 'opacity:0']]);
+    frames(`${id}s`, [[-1, 'opacity:0'], [0, 'opacity:1'], [70 + r() * 50, 'opacity:.85'], [G + 60, 'opacity:.3'], [G + Hd, 'opacity:0']]);
     body.push(el('g', { class: uid, style: anim(`${id}s`, ev.at) }, [
       el('circle', { cx: n(ev.start[0]), cy: n(ev.start[1]), r: n(10 * th), fill: colors.glow, opacity: 0.35, filter: `url(#${uid}Glow)` }),
       el('circle', { cx: n(ev.start[0]), cy: n(ev.start[1]), r: n(1.6 * th), fill: colors.core }),
     ]));
 
-    // branches: short arcs fired when the head passes their root
+    // branches: fire when the bolt reaches their root, die before the main bolt
     ev.branches.forEach((br, b) => {
-      const bp = travelPattern(46 + r() * 10, r);
-      const t0 = T * br.at * 0.9 + 20 + r() * 40;
-      const bt = 180 + r() * 220;
       const bid = `${id}b${b}`;
-      defs.push(el('path', { id: `${bid}p`, d: d(br.points), pathLength: 100 }));
+      const t0 = G * br.at + 15 + r() * 35;
+      const t1 = t0 + 90 + r() * 120;
+      const death = G + r() * Hd * 0.8;
+      defs.push(el('path', { id: bid, d: d(br.points), pathLength: 100 }));
       frames(bid, [
-        [t0 - 1, `opacity:0;stroke-dashoffset:${n(bp.span)}`],
-        [t0, `opacity:${n(0.85 * ev.peak)};stroke-dashoffset:${n(bp.span)}`],
-        [t0 + bt * 0.5, `opacity:${n(0.6 * ev.peak)};stroke-dashoffset:${n(bp.span - (100 + bp.span) * 0.5)}`],
-        [t0 + bt, 'opacity:0;stroke-dashoffset:-100'],
+        [t0 - 1, 'opacity:0;stroke-dashoffset:100'],
+        [t0, `opacity:${n(0.9 * pk)};stroke-dashoffset:100`],
+        [t1, `opacity:${n(0.9 * pk)};stroke-dashoffset:0`],
+        [Math.max(t1 + 20, death), `opacity:${n(0.75 * pk)};stroke-dashoffset:0`],
+        [Math.max(t1 + 20, death) + 30, `opacity:${n(0.2 * pk)};stroke-dashoffset:0`],
+        [Math.max(t1 + 20, death) + 55, `opacity:${n(0.6 * pk)};stroke-dashoffset:0`],
+        [Math.max(t1 + 20, death) + 130, 'opacity:0;stroke-dashoffset:0'],
       ]);
-      body.push(el('g', { class: uid, style: anim(bid, ev.at), 'stroke-dasharray': bp.dasharray, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', fill: 'none' }, [
-        el('use', { href: `#${bid}p`, 'xlink:href': `#${bid}p`, stroke: colors.glow, 'stroke-width': n(3 * th), opacity: 0.6, filter: `url(#${uid}Glow)` }),
-        el('use', { href: `#${bid}p`, 'xlink:href': `#${bid}p`, stroke: colors.secondary, 'stroke-width': n(1.05 * th) }),
-        el('use', { href: `#${bid}p`, 'xlink:href': `#${bid}p`, stroke: colors.core, 'stroke-width': n(0.4 * th), opacity: 0.8 }),
+      body.push(el('g', { class: uid, style: anim(bid, ev.at), ...lineAttrs }, [
+        use(bid, { stroke: colors.glow, 'stroke-width': n(3 * th), opacity: 0.6, filter: `url(#${uid}Glow)` }),
+        use(bid, { stroke: colors.secondary, 'stroke-width': n(1.05 * th) }),
+        use(bid, { stroke: colors.core, 'stroke-width': n(0.4 * th), opacity: 0.8 }),
       ]));
     });
   });

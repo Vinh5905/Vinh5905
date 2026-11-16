@@ -93,11 +93,11 @@ Cấu hình ở `lightning` trong `profile.config.json`:
 | `enabled` | bật/tắt |
 | `seed` | đổi số này để có một bộ tia sét khác (cùng seed thì luôn ra cùng kết quả) |
 | `loopSeconds` | độ dài một vòng lặp; trong một vòng không tia nào lặp lại |
-| `gapSeconds` | khoảng nghỉ ngẫu nhiên giữa hai lần phóng điện (mặc định 1.5–5 s) |
+| `gapSeconds` | khoảng nghỉ ngẫu nhiên giữa hai lần phóng điện (mặc định 0.6–2.2 s) |
 | `doubleChance` | xác suất có hai tia liền nhau |
 | `mix` | tỉ lệ tia yếu / vừa / mạnh (mặc định 65% / 25% / 10%) |
 
-Mỗi tia: một đốm sáng ở điểm đầu → tia mọc nhanh dọc đường gấp khúc tới điểm cuối → phần đuôi vỡ thành các mảnh nhỏ và biến mất dần từ điểm đầu về điểm cuối, có chớp nháy không đều; nhánh phụ phóng ra khi tia đi qua gốc nhánh.
+Mỗi tia: một đốm sáng ở điểm đầu → tia mọc nhanh dọc đường gấp khúc tới điểm cuối → giữ nguyên và chớp nháy không đều → tắt tại chỗ: từng đoạn của tia tắt ở những thời điểm ngẫu nhiên khác nhau (không quét theo một chiều), quầng sáng còn lưu lại một chút rồi mới tắt. Nhánh phụ phóng ra khi tia đi qua gốc nhánh và tắt trước thân chính.
 | `size`, `thickness` | hệ số độ dài và độ dày của tia |
 | `speed` | tốc độ chạy (nhỏ hơn 1 = chạy lâu hơn) |
 | `glow` | độ sáng quầng xanh |

@@ -100,12 +100,12 @@
     "$comment": "Hiệu ứng tia sét trong ảnh hero. Đường đi và thời điểm được sinh ngẫu nhiên có seed cố định (đổi seed để có bộ tia khác). avoidText=true để tia né chữ.",
     "enabled": true,
     "seed": 5905,
-    "loopSeconds": 46,
+    "loopSeconds": 40,
     "gapSeconds": [
-      1.5,
-      5
+      0.6,
+      2.2
     ],
-    "doubleChance": 0.18,
+    "doubleChance": 0.25,
     "mix": {
       "subtle": 0.65,
       "medium": 0.25,
