@@ -8,6 +8,7 @@ import { textPath } from '../lib/fonts.mjs';
 import { loadIcon } from '../lib/icons.mjs';
 import { css } from '../lib/motion.mjs';
 import { FULL_W } from '../lib/layout.mjs';
+import { generateLightning, renderLightning } from '../lib/lightning.mjs';
 
 export const HERO_COMPACT_W = 420;
 const EMOJI = { wave: '1f44b', smile: '1f60a' };
@@ -49,7 +50,7 @@ export function renderHero({ config, t, mode, fonts, motion, animated, root, com
   const desu = textPath(fonts.medium, intro.nameSuffix, { x: name.x0 + name.width + L.nS * 0.22, y: L.nY, size: L.g * (compact ? 0.82 : 1) });
 
   // intro paragraph
-  const body = L.lines.map((line, i) => richLine(root, fonts.medium, line, { x: 0, y: L.bY + i * L.pitch, size: L.body, fill: t.ink, prefix: `b${i}` }).markup);
+  const body = L.lines.map((line, i) => richLine(root, fonts.medium, line, { x: 0, y: L.bY + i * L.pitch, size: L.body, fill: t.ink, prefix: `b${i}` }));
   const H = Math.ceil(L.bY + (L.lines.length - 1) * L.pitch + L.body * 0.6 + 14);
 
   // iso pipeline detail: three columns on a small board along the up-right axis
@@ -93,6 +94,23 @@ export function renderHero({ config, t, mode, fonts, motion, animated, root, com
     ? el('g', { 'clip-path': 'url(#nameClip)' }, el('rect', { x: -160, y: L.nY - L.nS, width: 120, height: L.nS * 1.3, fill: 'url(#sheen)', class: 'sheen', transform: 'skewX(-18)' }))
     : null;
 
+  // ---- lightning: only in the animated file, never over text or the model
+  let lightning = null;
+  const lc = config.lightning;
+  if (animated && lc?.enabled) {
+    const box = (x, y0, w, size) => [x, y0 - size * 0.92, w, size * 1.18];
+    const ys = [...B, ...tops].map(([, y]) => y), xs = [...B, ...tops].map(([x]) => x);
+    const keepOut = [
+      box(0, L.gY, greet.width, L.g),
+      box(0, L.nY, desu.x0 + desu.width, L.nS),
+      ...L.lines.map((_, i) => box(0, L.bY + i * L.pitch, body[i].width, L.body)),
+      [Math.min(...xs) - 4, Math.min(...ys) - 6, Math.max(...xs) - Math.min(...xs) + 8, Math.max(...ys) - Math.min(...ys) + th + 10],
+    ];
+    const gen = generateLightning({ ...lc, seed: lc.seed + (compact ? 101 : 0) }, { width: W, height: H, keepOut });
+    lightning = renderLightning(gen, lc.colors[mode], { width: W, height: H, uid: 'lt' });
+    defs.push(...lightning.defs);
+  }
+
   const P = motion.sheenPeriodS;
   const style = css(animated, [
     `.rise{animation:rise ${motion.entranceMs}ms ${motion.ease} both}`,
@@ -101,6 +119,7 @@ export function renderHero({ config, t, mode, fonts, motion, animated, root, com
     `@keyframes sheen{0%{transform:skewX(-18deg) translateX(0)}18%,100%{transform:skewX(-18deg) translateX(${W + 200}px)}}`,
     `.packet{opacity:0;offset-rotate:0deg;animation:packet ${P}s ease-in-out 1.6s infinite both}`,
     `@keyframes packet{0%{offset-distance:0%;opacity:0}3%{opacity:1}22%{offset-distance:100%;opacity:1}26%,100%{offset-distance:100%;opacity:0}}`,
+  ...(lightning ? lightning.css : []),
   ]);
 
   return doc({
@@ -108,6 +127,6 @@ export function renderHero({ config, t, mode, fonts, motion, animated, root, com
     title: intro.alt,
     desc: 'Greeting, name and introduction, with a small emerald data-pipeline model.',
     css: style, defs,
-    body: [greet.markup, lift, el('path', { d: name.d, fill: t.ink }), sheen, el('path', { d: desu.d, fill: t.ink2 }), body, plate, blocks, flow, nodes, packet],
+    body: [lightning ? lightning.body : null, greet.markup, lift, el('path', { d: name.d, fill: t.ink }), sheen, el('path', { d: desu.d, fill: t.ink2 }), body.map((b) => b.markup), plate, blocks, flow, nodes, packet],
   });
 }

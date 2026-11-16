@@ -83,3 +83,24 @@ git push origin main
 ```
 
 Sau lần push đầu, vào tab **Actions** của repo đó và chạy *Update profile assets* một lần để thay dữ liệu xem trước bằng dữ liệu GraphQL.
+
+## Tia sét trong hero
+
+Cấu hình ở `lightning` trong `profile.config.json`:
+
+| Khoá | Ý nghĩa |
+|---|---|
+| `enabled` | bật/tắt |
+| `seed` | đổi số này để có một bộ tia sét khác (cùng seed thì luôn ra cùng kết quả) |
+| `loopSeconds` | độ dài một vòng lặp; trong một vòng không tia nào lặp lại |
+| `gapSeconds` | khoảng nghỉ ngẫu nhiên giữa hai lần phóng điện (mặc định 1.5–5 s) |
+| `doubleChance` | xác suất có hai tia liền nhau |
+| `mix` | tỉ lệ tia yếu / vừa / mạnh (mặc định 65% / 25% / 10%) |
+| `intensity`, `glow` | độ dài và độ sáng quầng xanh |
+| `margin`, `textClearance` | khoảng cách tối thiểu tới mép ảnh và tới chữ |
+| `colors.dark`, `colors.light` | màu lõi (`core`), thân (`main`), quầng (`glow`), nhánh (`secondary`) cho từng theme |
+
+Vùng phóng điện là toàn bộ ảnh hero, trừ chữ và cụm cột emerald: hệ thống tự đo vị trí chữ, nên khi bạn sửa lời giới thiệu thì tia sét vẫn né đúng chỗ.
+Bản tĩnh và chế độ giảm chuyển động không có tia sét.
+
+Xem trước dạng video: `node scripts/record.mjs assets/generated/hero-dark.svg out.mp4 --to 20` (cần Playwright và ffmpeg).

@@ -95,5 +95,39 @@
   "sections": {
     "skills": "技術スタック",
     "activity": "GitHub での活動"
+  },
+  "lightning": {
+    "$comment": "Hiệu ứng tia sét trong ảnh hero. Đường đi và thời điểm được sinh ngẫu nhiên có seed cố định (đổi seed để có bộ tia khác). Tia sét tự tránh vùng chữ.",
+    "enabled": true,
+    "seed": 5905,
+    "loopSeconds": 46,
+    "gapSeconds": [
+      1.5,
+      5
+    ],
+    "doubleChance": 0.18,
+    "mix": {
+      "subtle": 0.65,
+      "medium": 0.25,
+      "strong": 0.1
+    },
+    "intensity": 1.0,
+    "glow": 1.0,
+    "margin": 10,
+    "textClearance": 8,
+    "colors": {
+      "dark": {
+        "core": "#E9FFE5",
+        "main": "#8BFF62",
+        "glow": "#65FF45",
+        "secondary": "#B5FF91"
+      },
+      "light": {
+        "core": "#F3FFEE",
+        "main": "#16B34A",
+        "glow": "#3DDC5C",
+        "secondary": "#22C55E"
+      }
+    }
   }
 }
