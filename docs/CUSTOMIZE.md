@@ -1,14 +1,15 @@
 # Cách sửa và sinh lại asset
 
 ```
-README.md                    ← khung profile và đoạn giới thiệu (văn bản thường, sửa trực tiếp)
-profile.config.json          ← username, chữ trong hero, nhóm icon, nhãn tiếng Nhật
+README.md                    ← SINH TỰ ĐỘNG bởi `npm run build` (đừng sửa tay)
+profile.config.json          ← username, lời chào/tên/đoạn giới thiệu, tiêu đề mục, nhóm icon, số năm, nhãn
 config/theme.json            ← màu, ánh sáng, bóng, thông số chuyển động (light/dark)
 config/icons.json            ← nguồn từng logo và màu đảo cho theme tối
 config/sources.json          ← phiên bản Devicon / Simple Icons / font / emoji đã ghim
 assets/icons/                ← logo đã tải về và metrics.json (kích thước quang học)
 assets/generated/            ← ảnh SVG sinh ra (không sửa tay)
-data/github-stats.json       ← số liệu đã lấy (workflow ghi đè)
+data/github-stats.json       ← số liệu 12 tháng gần nhất (workflow ghi đè)
+data/years/<năm>.json        ← lịch contribution theo từng năm (3 năm gần nhất)
 scripts/                     ← build.mjs, fetch-data.mjs, render/*, lib/*
 .github/workflows/update-profile.yml
 ```
@@ -36,9 +37,14 @@ Lấy dữ liệu:
 
 ## Sửa phần giới thiệu
 
-* Đoạn văn: sửa trực tiếp thẻ `<p>` trong `README.md`.
-* Lời chào và tên trong ảnh hero: sửa `intro` trong `profile.config.json` (`{wave}` là vị trí emoji 👋), sau đó chạy `npm run build`. Font IBM Plex Sans JP có đủ kana và kanji thông dụng. Nếu thiếu glyph, lệnh build sẽ dừng và báo lỗi chứ không vẽ ô trống.
-* Nhớ cập nhật luôn `alt` của ảnh hero trong `README.md`.
+Tất cả nằm trong `intro` của `profile.config.json`:
+* `greeting`, `namePrefix`, `name`, `nameSuffix`: lời chào và tên.
+* `lines`: các dòng giới thiệu trên desktop; `linesCompact`: các dòng trên điện thoại (ngắn hơn). `{wave}` = 👋, `{smile}` = 😊.
+* `alt`: toàn văn bản dạng chữ, được ghi vào thuộc tính alt của ảnh (đọc được bằng trình đọc màn hình, hiện ra khi ảnh không tải).
+
+Chạy `npm run build`: ảnh và `README.md` được sinh lại. Font IBM Plex Sans JP có đủ kana và kanji thông dụng; nếu thiếu glyph, build dừng và báo lỗi chứ không vẽ ô trống.
+
+Tiêu đề hai mục phân tách nằm ở `sections`. Số năm có nút xem riêng nằm ở `github.years` (mặc định 3).
 
 ## Sửa danh sách công nghệ
 
@@ -50,7 +56,7 @@ Lấy dữ liệu:
 2. Chạy `npm run vendor` để tải logo và đo kích thước quang học (cần Playwright).
 3. Thêm id vào `rows` của nhóm tương ứng trong `profile.config.json`. Mỗi nhóm có tối đa 3 hàng × 4 logo.
 4. Nếu logo có màu tối khó thấy trên nền tối, thêm `"dark": { "#màu-gốc": "#FFFFFF" }` (dùng biến thể đảo màu của chính thương hiệu).
-5. Cập nhật `alt` của hai ảnh stack trong `README.md`, rồi chạy `npm run build`.
+5. Chạy `npm run build` (alt text trong README tự cập nhật).
 
 ## Đổi màu
 

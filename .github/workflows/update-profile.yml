@@ -68,12 +68,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
         run: node scripts/fetch-data.mjs --lib .cache/3d-contrib/dist0/src
 
-      - name: Render SVG assets
+      - name: Render SVG assets (+ README.md)
         run: node scripts/build.mjs
 
       - name: Commit if changed
         run: |
-          git add data/github-stats.json assets/generated
+          git add -A data assets/generated README.md docs/static.md
           if git diff --cached --quiet; then
             echo "No changes."
             exit 0

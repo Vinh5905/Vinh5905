@@ -32,6 +32,9 @@ for (const c of cases) for (const scheme of ['light', 'dark']) for (const motion
   await page.emulateMedia({ colorScheme: scheme, reducedMotion: motion });
   await page.goto(url);
   await page.waitForLoadState('load');
+  // open the year toggles so their images are checked and visible in the shots
+  await page.evaluate(() => document.querySelectorAll('details').forEach((d) => (d.open = true)));
+  await page.waitForTimeout(300);
   if (motion === 'no-preference') {
     await page.waitForTimeout(700);
     await page.screenshot({ path: join(outDir, `${c.name}-${scheme}-entrance.png`), fullPage: false, clip: { x: 0, y: 0, width: c.width, height: Math.min(3600, await page.evaluate(() => document.body.scrollHeight)) } });

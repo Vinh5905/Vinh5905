@@ -12,7 +12,11 @@ import { FULL_W, COMPACT_W } from '../lib/layout.mjs';
 const toDay = (iso) => Math.floor(Date.parse(iso + 'T00:00:00Z') / 86400000);
 const fmt = (v) => v.toLocaleString('en-US');
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const DAYS = { 1: 'Mon', 3: 'Wed', 5: 'Fri' };
+
 export function renderLandscape({ data, t, fonts, labels, motion, animated, compact = false }) {
+  const isYear = data.kind === 'year';
   const W = compact ? COMPACT_W : FULL_W;
   const headerH = compact ? 100 : 0; // compact: text sits above the strip, larger
   const cal = data.calendar;
@@ -26,26 +30,24 @@ export function renderLandscape({ data, t, fonts, labels, motion, animated, comp
 
   // cell size: the strip spans (weeks - 1 + 6) cells + margins horizontally
   const m = 0.75; // plate margin in cells
-  const dx = (W - 4) / (weeks - 1 + 6 + 2 * (1 + m));
+  // board margins in cells: back end carries Mon/Wed/Fri, front edge carries months
+  const wb = 3.1, wf = m, db = m, df = 2.5;
+  const dx = (W - 4) / (weeks + wf + db + wb + df + 7);
   const dy = dx * TAN;
   const a = dx * 0.9, b = dy * 0.9;
   const unit = dx / 20; // library cell = 20px
   const barH = (count) => (Math.log10(count / 20 + 1) * 144 + 3) * unit;
 
-  const ox = (6 + 1 + m) * dx + 2; // x of the (week 0, Sunday) cell centre
+  const ox = (wb + df + 7) * dx + 2; // x of the (week 0, Sunday) cell centre
   const center = (w, d, oy) => [ox + (w - d) * dx, oy + (w + d) * dy];
 
   // vertical origin: leave room for the tallest bar at the back
   const maxRise = Math.max(...cells.map((c) => barH(c.count) - (c.week + c.day) * dy));
-  const oy = compact ? headerH + Math.max(dy * 2 + 8, maxRise + 12) : Math.max(70, maxRise + 26);
+  const oy = compact ? headerH + Math.max((wb + db + 1) * dy + 8, maxRise + 12) : Math.max((wb + db + 1) * dy + 24, maxRise + 26, 70);
   const plateT = 9 * unit * 1.6; // base board thickness
   const corner = (w, d) => center(w, d, oy);
-  const pc = {
-    T: [corner(-m, -m)[0], corner(-m, -m)[1] - dy],
-    R: [corner(weeks - 1 + m, -m)[0] + dx, corner(weeks - 1 + m, -m)[1]],
-    B: [corner(weeks - 1 + m, 6 + m)[0], corner(weeks - 1 + m, 6 + m)[1] + dy],
-    L: [corner(-m, 6 + m)[0] - dx, corner(-m, 6 + m)[1]],
-  };
+  const pt = (w, d) => center(w, d, oy); // fractional cell → screen
+  const pc = { T: pt(-wb - 0.5, -db - 0.5), R: pt(weeks - 1 + wf + 0.5, -db - 0.5), B: pt(weeks - 1 + wf + 0.5, 6 + df + 0.5), L: pt(-wb - 0.5, 6 + df + 0.5) };
   const H = Math.ceil(pc.B[1] + plateT + 28);
 
   // ---- base plate (desk model board)
@@ -93,7 +95,7 @@ export function renderLandscape({ data, t, fonts, labels, motion, animated, comp
   }
 
   // ---- headline block: top-right triangle (full) or a header row (compact)
-  const period = `${cal[0].date} 〜 ${cal[cal.length - 1].date}`;
+  const period = isYear ? `${data.year}${labels.yearSuffix}` : `${cal[0].date} 〜 ${cal[cal.length - 1].date}`;
   const S = compact ? { big: 46, lab: 20, per: 16, num: 19 } : { big: 52, lab: 19, per: 15, num: 17 };
   let head;
   {
@@ -109,19 +111,50 @@ export function renderLandscape({ data, t, fonts, labels, motion, animated, comp
       : textPath(fonts.medium, period, { x: right, y: 120, size: S.per, anchor: 'end' });
     const sy = compact ? 82 : 154;
     const iconS = S.num / 16;
-    const forkTxt = textPath(fonts.semibold, fmt(data.totals.forks), { x: right, y: sy, size: S.num, anchor: 'end' });
+    const forkTxt = textPath(fonts.semibold, fmt(data.totals.forks ?? 0), { x: right, y: sy, size: S.num, anchor: 'end' });
     const forkIcon = icon16(FORK, forkTxt.x0 - 22 * iconS, sy - 13.5 * iconS, iconS, t.ink3);
-    const starTxt = textPath(fonts.semibold, fmt(data.totals.stars), { x: forkTxt.x0 - 36 * iconS, y: sy, size: S.num, anchor: 'end' });
+    const starTxt = textPath(fonts.semibold, fmt(data.totals.stars ?? 0), { x: forkTxt.x0 - 36 * iconS, y: sy, size: S.num, anchor: 'end' });
     const starIcon = icon16(STAR, starTxt.x0 - 22 * iconS, sy - 13.5 * iconS, iconS, t.ink3);
     head = el('g', {}, [
       el('path', { d: big.d, fill: t.ink }),
       el('path', { d: lab.d, fill: t.ink2 }),
       el('path', { d: per.d, fill: t.ink3 }),
-      el('title', {}, `stars ${data.totals.stars}, forks ${data.totals.forks}`),
-      starIcon, el('path', { d: starTxt.d, fill: t.ink2 }),
-      forkIcon, el('path', { d: forkTxt.d, fill: t.ink2 }),
+      // stars/forks are all-time totals, so they only appear on the rolling view
+      isYear ? null : [
+        el('title', {}, `stars ${data.totals.stars}, forks ${data.totals.forks}`),
+        starIcon, el('path', { d: starTxt.d, fill: t.ink2 }),
+        forkIcon, el('path', { d: forkTxt.d, fill: t.ink2 }),
+      ],
     ]);
   }
+
+  // ---- axis labels printed flat on the board (same plane as the blocks):
+  // text runs along the week axis, glyph "up" points back toward the grid.
+  const K = 10; // local text px per cell
+  const onBoard = (d, w0, wd) => {
+    const [ex, ey] = pt(w0, wd);
+    // x' = a·x + c·y + e, y' = b·x + d·y + f   (x → +week, y(down) → +day)
+    return `matrix(${n(dx / K)} ${n(dy / K)} ${n(-dx / K)} ${n(dy / K)} ${n(ex)} ${n(ey)})`;
+  };
+  const monthAt = [];
+  for (const c of cells) {
+    const mo = Number(c.date.slice(5, 7)) - 1;
+    if (!monthAt.length || monthAt[monthAt.length - 1].mo !== mo) monthAt.push({ mo, week: c.week });
+  }
+  const shown = monthAt.filter((mk, i) => {
+    const next = monthAt[i + 1];
+    return !(next && next.week - mk.week < 3); // drop a partial first month crowding the next label
+  });
+  const axis = el('g', { fill: t.ink3 }, [
+    ...shown.map(({ mo, week }) => el('path', {
+      d: textPath(fonts.semibold, MONTHS[mo], { x: 0, y: 0, size: 13 }).d,
+      transform: onBoard(null, week - 0.45, 6 + 1.95),
+    })),
+    ...Object.entries(DAYS).map(([d, name]) => el('path', {
+      d: textPath(fonts.semibold, name, { x: 0, y: 0, size: 11.5, anchor: 'end' }).d,
+      transform: onBoard(null, -0.8, Number(d) + 0.42),
+    })),
+  ]);
 
   // ---- legend (bottom left): 少 ▪▪▪▪▪ 多 as tiny blocks
   const ly = H - 34;
@@ -145,7 +178,7 @@ export function renderLandscape({ data, t, fonts, labels, motion, animated, comp
   return doc({
     width: W, height: H,
     title: `${data.username}: ${fmt(data.totals.contributions)} contributions (${period})`,
-    desc: `3D contribution calendar, one block per day, height by contribution count. Stars ${data.totals.stars}, forks ${data.totals.forks}.`,
+    desc: `3D contribution calendar, one block per day, height by contribution count.${isYear ? '' : ` Stars ${data.totals.stars}, forks ${data.totals.forks}.`}`,
     css: style,
     defs: clips,
     body: [
@@ -153,6 +186,7 @@ export function renderLandscape({ data, t, fonts, labels, motion, animated, comp
       el('g', {}, flat),
       el('g', { fill: t.shadow.color, opacity: t.shadow.opacity }, shadows),
       el('g', {}, bars),
+      axis,
       head,
       legend,
     ],

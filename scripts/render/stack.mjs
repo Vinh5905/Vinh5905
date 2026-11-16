@@ -9,11 +9,11 @@ import { textPath } from '../lib/fonts.mjs';
 import { loadIcon, placeIcon } from '../lib/icons.mjs';
 import { css } from '../lib/motion.mjs';
 
-import { HALF_W as STACK_W } from '../lib/layout.mjs';
+import { HALF_W as STACK_W, FULL_W } from '../lib/layout.mjs';
 const SLOT = 94, A = 31, PH = 14, LOGO = 48;
 const B = A * TAN;
 
-export function renderStack({ group, groupIndex, t, mode, fonts, motion, animated, root, iconSpecs }) {
+export function buildShelf({ group, groupIndex, t, mode, fonts, motion, animated, root, iconSpecs }) {
   const metrics = JSON.parse(readFileSync(join(root, 'assets/icons/metrics.json'), 'utf8'));
   const title = textPath(fonts.semibold, group.title, { x: 0, y: 27, size: 20 });
   const maxRow = Math.max(...group.rows.map((r) => r.length));
@@ -60,20 +60,43 @@ export function renderStack({ group, groupIndex, t, mode, fonts, motion, animate
       [ground, faces, contact, logo]);
   });
 
-  const style = css(animated, [
-    `.pop{animation:pop 640ms ${motion.ease} both}`,
-    `@keyframes pop{from{opacity:0;transform:translateY(10px)}}`,
-    `.bob{animation:bob ${motion.bobPeriodS}s ease-in-out infinite both}`,
-    `@keyframes bob{50%{transform:translateY(-${motion.bobPx}px)}}`,
-    `.bobs{transform-box:fill-box;transform-origin:center;animation:bobs ${motion.bobPeriodS}s ease-in-out infinite both}`,
-    `@keyframes bobs{50%{transform:scale(.82)}}`,
-  ]);
-  const names = items.map((it) => iconSpecs[it.id].label).join(', ');
+  const names = items.map((it) => iconSpecs[it.id].label);
+  return { body: [el('path', { d: title.d, fill: t.ink }), bodies], height: Math.ceil(H), names };
+}
+
+const shelfCss = (motion) => [
+  `.pop{animation:pop 640ms ${motion.ease} both}`,
+  `@keyframes pop{from{opacity:0;transform:translateY(10px)}}`,
+  `.bob{animation:bob ${motion.bobPeriodS}s ease-in-out infinite both}`,
+  `@keyframes bob{50%{transform:translateY(-${motion.bobPx}px)}}`,
+  `.bobs{transform-box:fill-box;transform-origin:center;animation:bobs ${motion.bobPeriodS}s ease-in-out infinite both}`,
+  `@keyframes bobs{50%{transform:scale(.82)}}`,
+];
+
+/**
+ * Both shelves in one image. Full: side by side, the first shelf flush left and
+ * the second flush right of the 760 grid. Compact (phones): stacked.
+ */
+export function renderSkills(ctx) {
+  const { config, motion, animated } = ctx;
+  const shelves = config.stack.map((group, groupIndex) => buildShelf({ ...ctx, group, groupIndex }));
+  const compact = !!ctx.compact;
+  const W = compact ? STACK_W : FULL_W;
+  const gap = 28;
+  let y = 0;
+  const placed = shelves.map((s, i) => {
+    const x = compact ? 0 : i === 0 ? 0 : FULL_W - STACK_W;
+    const g = el('g', { transform: `translate(${x} ${compact ? y : 0})` }, s.body);
+    y += s.height + gap;
+    return g;
+  });
+  const H = compact ? y - gap : Math.max(...shelves.map((s) => s.height));
+  const summary = config.stack.map((g, i) => `${g.title}: ${shelves[i].names.join(', ')}`).join('. ');
   return doc({
-    width: STACK_W, height: Math.ceil(H),
-    title: `${group.title}: ${names}`,
-    desc: `Logos of ${names} on small pedestals.`,
-    css: style,
-    body: [el('path', { d: title.d, fill: t.ink }), bodies],
+    width: W, height: H,
+    title: summary,
+    desc: 'Logos on small iso pedestals, grouped by area.',
+    css: css(animated, shelfCss(motion)),
+    body: placed,
   });
 }

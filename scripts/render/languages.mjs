@@ -3,15 +3,14 @@
 // grouped by each repository's primary language, top 5 + "other"
 // (= total commit contributions − top 5). The projection is an affine squash
 // of a flat ring, so every slice keeps its true share of the top surface.
-import { el, n, doc } from '../lib/svg.mjs';
+import { el, n } from '../lib/svg.mjs';
 import { TAN, diamond, prism } from '../lib/iso.mjs';
 import { shade, harmonize, hexToRgb, rgbToHsl, hslToRgb, rgbToHex } from '../lib/color.mjs';
 import { textPath } from '../lib/fonts.mjs';
-import { css } from '../lib/motion.mjs';
 
 import { HALF_W as CHART_W } from '../lib/layout.mjs';
 export { CHART_W };
-export const CHART_H = 330;
+export const CHART_H = 320;
 
 /**
  * GitHub's language colours can sit a few degrees apart (Java #b07219 vs
@@ -47,12 +46,12 @@ export function langSlices(data) {
   return { slices: top, total };
 }
 
-export function renderLanguages({ data, t, mode, fonts, labels, motion, animated }) {
+export function buildLanguages({ data, t, mode, fonts, labels, motion, animated, cw = CHART_W }) {
   const { slices, total } = langSlices(data);
   const title = textPath(fonts.semibold, labels.languagesTitle, { x: 0, y: 27, size: 20 });
   const note = textPath(fonts.medium, labels.languagesNote, { x: 0, y: 50, size: 13 });
 
-  const cx = 86, cy = 190, R = 84, r = 47, k = 0.6, T = 12;
+  const cx = 76, cy = 186, R = 74, r = 42, k = 0.6, T = 11;
   const P = (ang, rad, z = 0) => [cx + rad * Math.cos(ang), cy + rad * k * Math.sin(ang) - z];
   const colors = separateHues(slices.map((s) => (s.language ? s.color : null))).map((c) => (c ? harmonize(c, t.langLightness) : t.other));
 
@@ -112,18 +111,18 @@ export function renderLanguages({ data, t, mode, fonts, labels, motion, animated
   const shadow = el('ellipse', { cx: cx + 8, cy: cy + 8, rx: R * 1.1, ry: R * k * 1.12, fill: 'url(#dshadow)' });
 
   // centre label on the top surface
-  const num = textPath(fonts.bold, total.toLocaleString('en-US'), { x: cx, y: cy - 3, size: 20, anchor: 'middle' });
-  const unit = textPath(fonts.medium, labels.commitsUnit, { x: cx, y: cy + 10, size: 10.5, anchor: 'middle' });
+  const num = textPath(fonts.bold, total.toLocaleString('en-US'), { x: cx, y: cy - 3, size: 18, anchor: 'middle' });
+  const unit = textPath(fonts.medium, labels.commitsUnit, { x: cx, y: cy + 9, size: 10, anchor: 'middle' });
 
   // legend
-  const lx = 192, rowH = 27;
+  const lx = 166, rowH = 26;
   const ly0 = cy - T / 2 - ((segs.length - 1) * rowH) / 2;
   const legend = segs.map((s, i) => {
     const y = ly0 + i * rowH;
     const f = diamond(lx + 6, y + 2, 6.5, 6.5 * TAN);
     const pct = ((s.contributions / total) * 100).toFixed(s.contributions / total < 0.1 ? 1 : 0) + '%';
-    const name = textPath(fonts.medium, s.language || labels.other, { x: lx + 20, y: y + 5, size: 14 });
-    const val = textPath(fonts.semibold, pct, { x: CHART_W - 2, y: y + 5, size: 14, anchor: 'end' });
+    const name = textPath(fonts.medium, s.language || labels.other, { x: lx + 18, y: y + 5, size: 13.5 });
+    const val = textPath(fonts.semibold, pct, { x: cw, y: y + 5, size: 13.5, anchor: 'end' });
     return el('g', { class: animated ? 'fade' : undefined, style: animated ? `animation-delay:${700 + i * 90}ms` : undefined }, [
       prism(f, 5, s.color, t.shade),
       el('path', { d: name.d, fill: s.language ? t.ink : t.ink2 }),
@@ -135,7 +134,7 @@ export function renderLanguages({ data, t, mode, fonts, labels, motion, animated
   const maskR = (R + T / k + 8) / 2;
   const defs = [shadowGrad];
   if (animated) {
-    defs.push(el('mask', { id: 'reveal', maskUnits: 'userSpaceOnUse', x: 0, y: 0, width: CHART_W, height: CHART_H },
+    defs.push(el('mask', { id: 'reveal', maskUnits: 'userSpaceOnUse', x: 0, y: 0, width: cw, height: CHART_H },
       el('g', { transform: `translate(${n(cx)} ${n(cy - T / 2)}) scale(1 ${k}) rotate(-90)` },
         el('circle', { r: maskR, stroke: '#fff', 'stroke-width': maskR * 2 + 2, fill: 'none', pathLength: 100, class: 'sweep' }))));
     defs.push(el('clipPath', { id: 'topClip' }, segs.map((s) => el('path', { d: `${M(P(s.a0, R, T))}${arc(R, s.a0, s.a1, T, 1)}${L(P(s.a1, r, T))}${arc(r, s.a1, s.a0, T, 0)}Z` }))));
@@ -151,26 +150,24 @@ export function renderLanguages({ data, t, mode, fonts, labels, motion, animated
     : null;
 
   const Pd = motion.sheenPeriodS;
-  const style = css(animated, [
+  const style = [
     `.sweep{stroke-dasharray:100 100;animation:sweep 1200ms ${motion.ease} 150ms both}`,
     `@keyframes sweep{from{stroke-dashoffset:100}}`,
     `.fade{animation:fade 500ms ease-out both}`,
     `@keyframes fade{from{opacity:0}}`,
     `.dsheen{animation:dsheen ${Pd}s ease-in-out 2.4s infinite both}`,
     `@keyframes dsheen{0%{transform:skewX(-20deg) translateX(0)}20%,100%{transform:skewX(-20deg) translateX(${2 * R + 140}px)}}`,
-  ]);
+  ];
 
   const desc = segs.map((s) => `${s.language || labels.other} ${((s.contributions / total) * 100).toFixed(1)}%`).join(', ');
-  return doc({
-    width: CHART_W, height: CHART_H,
-    title: `${labels.languagesTitle}: ${desc}`,
-    desc: `Commit contributions in the past year (${total}), grouped by repository primary language. ${desc}.`,
-    css: style, defs,
+  return {
     body: [
       el('path', { d: title.d, fill: t.ink }), el('path', { d: note.d, fill: t.ink3 }),
       shadow, donut, sheen,
       el('path', { d: num.d, fill: t.ink }), el('path', { d: unit.d, fill: t.ink2 }),
       legend,
     ],
-  });
+    defs, css: style, height: CHART_H,
+    summary: `${labels.languagesTitle} (${total}): ${desc}`,
+  };
 }

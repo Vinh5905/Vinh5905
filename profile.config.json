@@ -2,32 +2,69 @@
   "$comment": "Nội dung hiển thị của profile. Sửa file này rồi chạy `npm run build`. Xem docs/CUSTOMIZE.md.",
   "github": {
     "username": "Vinh5905",
-    "maxRepos": 100
+    "maxRepos": 100,
+    "years": 3
   },
   "intro": {
     "greeting": "こんにちは {wave}！",
     "namePrefix": "私は",
     "name": "ファム・ホアン・ヴィン",
     "nameSuffix": "です",
-    "alt": "こんにちは！私は ファム・ホアン・ヴィン です"
+    "lines": [
+      "データエンジニアという職種に強い興味があり、",
+      "将来的には日本で働きたいと考えています。",
+      "よろしくお願いします！{smile}"
+    ],
+    "linesCompact": [
+      "データエンジニアという職種に",
+      "強い興味があり、将来的には",
+      "日本で働きたいと考えています。",
+      "よろしくお願いします！{smile}"
+    ],
+    "alt": "こんにちは 👋！ 私は ファム・ホアン・ヴィン です。データエンジニアという職種に強い興味があり、将来的には日本で働きたいと考えています。よろしくお願いします！😊"
   },
   "stack": [
     {
       "id": "data",
       "title": "Data Engineering",
       "rows": [
-        ["python", "pandas", "postgresql"],
-        ["airflow", "dbt"],
-        ["minio", "cloudflare-r2"]
+        [
+          "python",
+          "pandas",
+          "postgresql"
+        ],
+        [
+          "airflow",
+          "dbt"
+        ],
+        [
+          "minio",
+          "cloudflare-r2"
+        ]
       ]
     },
     {
       "id": "devops",
       "title": "DevOps & Cloud",
       "rows": [
-        ["docker", "kubernetes", "helm", "argocd"],
-        ["terraform", "ansible", "aws", "github-actions"],
-        ["git", "linux", "prometheus", "grafana"]
+        [
+          "docker",
+          "kubernetes",
+          "helm",
+          "argocd"
+        ],
+        [
+          "terraform",
+          "ansible",
+          "aws",
+          "github-actions"
+        ],
+        [
+          "git",
+          "linux",
+          "prometheus",
+          "grafana"
+        ]
       ]
     }
   ],
@@ -42,12 +79,17 @@
     "languagesNote": "過去1年・リポジトリの主要言語で集計",
     "commitsUnit": "コミット",
     "other": "その他",
-    "activityTitle": "GitHub アクティビティ",
+    "activityTitle": "アクティビティ内訳",
     "activityNote": "過去1年・対数目盛",
     "commit": "コミット",
     "issue": "イシュー",
     "pullreq": "プルリク",
     "review": "レビュー",
-    "repo": "リポジトリ"
+    "repo": "リポジトリ",
+    "yearSuffix": "年"
+  },
+  "sections": {
+    "skills": "技術スタック",
+    "activity": "GitHub での活動"
   }
 }

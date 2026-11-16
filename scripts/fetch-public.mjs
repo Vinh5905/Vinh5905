@@ -9,11 +9,15 @@
 //     (public repositories, default branches), not contributionsCollection.
 //
 // Usage: node scripts/fetch-public.mjs <username> [out=data/github-stats.json]
+//        node scripts/fetch-public.mjs <username> --year 2025 [out=data/years/2025.json]
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 const user = process.argv[2];
-const out = process.argv[3] || 'data/github-stats.json';
+const yi = process.argv.indexOf('--year');
+const year = yi > 0 ? Number(process.argv[yi + 1]) : null;
+const rest = process.argv.slice(3).filter((a, i, all) => a !== '--year' && all[i - 1] !== '--year');
+const out = rest[0] || (year ? `data/years/${year}.json` : 'data/github-stats.json');
 if (!user) { console.error('usage: fetch-public.mjs <username> [out]'); process.exit(1); }
 
 const UA = { 'User-Agent': 'profile-readme-preview', Accept: 'application/vnd.github+json' };
@@ -25,7 +29,7 @@ const get = async (url, asText = false) => {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // 1. contribution calendar (public HTML fragment that GitHub's profile page loads)
-const html = await get(`https://github.com/users/${user}/contributions`, true);
+const html = await get(`https://github.com/users/${user}/contributions${year ? `?from=${year}-01-01&to=${year}-12-31` : ''}`, true);
 const tips = new Map();
 for (const m of html.matchAll(/<tool-tip[^>]*\bfor="([^"]+)"[^>]*>([^<]*)<\/tool-tip>/g)) tips.set(m[1], m[2]);
 const calendar = [];
@@ -42,6 +46,19 @@ for (const m of html.matchAll(/<td\b[^>]*>/g)) {
 }
 calendar.sort((a, b) => a.date.localeCompare(b.date));
 if (calendar.length < 300) throw new Error(`calendar too short (${calendar.length})`);
+if (year) {
+  const days = calendar.filter((c) => c.date.startsWith(`${year}-`));
+  const data = {
+    schema: 1, kind: 'year', year, source: 'public-preview',
+    sourceNote: 'Public contributions page (exact per-day counts). Replaced by GraphQL data on the next workflow run.',
+    username: user, fetchedAt: new Date().toISOString(), calendar: days,
+    totals: { contributions: days.reduce((s, d) => s + d.count, 0) },
+  };
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, JSON.stringify(data, null, 2) + '\n');
+  console.log(`wrote ${out}: ${days.length} days, ${data.totals.contributions} contributions`);
+  process.exit(0);
+}
 const totalMatch = /([\d,]+)\s+contributions?\s+in the last year/.exec(html);
 const totalContrib = totalMatch ? Number(totalMatch[1].replace(/,/g, '')) : calendar.reduce((s, d) => s + d.count, 0);
 const from = calendar[0].date;

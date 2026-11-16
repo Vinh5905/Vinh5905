@@ -21,7 +21,7 @@
     "ink2": "#9DAFA5",
     "ink3": "#7E9187",
     "accent": "#34D399",
-    "hairline": "#24332C",
+    "hairline": "#2B3B34",
     "plate": { "top": "#141D19", "left": "#101714", "right": "#0B110E", "edge": "#22302A" },
     "levels": ["#19231F", "#155A42", "#178B60", "#25B47D", "#4FE0A6"],
     "shade": { "left": -0.07, "right": -0.13, "rim": 0.16, "rimOpacity": 0.55 },

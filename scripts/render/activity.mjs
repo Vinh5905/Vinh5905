@@ -2,16 +2,16 @@
 // github-profile-3d-contrib (rings 1 / 10 / 100 / 1K / 10K; level = log10(v)+1,
 // 0 → 0.8). Kept flat and front-facing for readability; it sits on a thin
 // pentagon tile so it belongs to the same desk model.
-import { el, n, pts, doc } from '../lib/svg.mjs';
+import { el, n, pts } from '../lib/svg.mjs';
 import { textPath } from '../lib/fonts.mjs';
-import { css } from '../lib/motion.mjs';
 import { CHART_W, CHART_H } from './languages.mjs';
 
 const toLevel = (v) => (v < 1 ? 0.8 : Math.min(Math.log10(v), 5) + 1);
 const LEVELS = 5;
 const RING_LABELS = ['1', '10', '100', '1K', '10K'];
 
-export function renderActivity({ data, t, mode, fonts, labels, motion, animated }) {
+export function buildActivity({ data, t, mode, fonts, labels, motion, animated, cw = CHART_W, ox = 0, oy = 0 }) {
+  // absolute coordinates (no wrapping translate) so the CSS transform-origin is exact
   const tt = data.totals;
   const axes = [
     { name: labels.commit, value: tt.commits },
@@ -20,10 +20,10 @@ export function renderActivity({ data, t, mode, fonts, labels, motion, animated 
     { name: labels.review, value: tt.reviews },
     { name: labels.repo, value: tt.repositories },
   ];
-  const title = textPath(fonts.semibold, labels.activityTitle, { x: 0, y: 27, size: 20 });
-  const note = textPath(fonts.medium, labels.activityNote, { x: 0, y: 50, size: 13 });
+  const title = textPath(fonts.semibold, labels.activityTitle, { x: ox, y: oy + 27, size: 20 });
+  const note = textPath(fonts.medium, labels.activityNote, { x: ox, y: oy + 50, size: 13 });
 
-  const cx = CHART_W / 2, cy = 200, R = 84;
+  const cx = ox + cw / 2, cy = oy + 196, R = 80;
   const pos = (level, i) => {
     const a = (i / axes.length) * Math.PI * 2;
     return [cx + R * (level / LEVELS) * Math.sin(a), cy - R * (level / LEVELS) * Math.cos(a)];
@@ -65,16 +65,14 @@ export function renderActivity({ data, t, mode, fonts, labels, motion, animated 
     return el('g', {}, [el('title', {}, `${a.name}: ${a.value}`), el('path', { d: nm.d, fill: t.ink2 }), el('path', { d: val.d, fill: t.ink })]);
   });
 
-  const style = css(animated, [
+  const style = [
     `.grow{animation:grow 1100ms ${motion.ease} 300ms both}`,
     `@keyframes grow{from{transform:scale(.16);opacity:0}}`,
-  ]);
+  ];
   const summary = axes.map((a) => `${a.name} ${a.value}`).join(', ');
-  return doc({
-    width: CHART_W, height: CHART_H,
-    title: `${labels.activityTitle}: ${summary}`,
-    desc: `Contributions in the past year on a logarithmic scale. ${summary}. Stars ${tt.stars}, forks ${tt.forks}.`,
-    css: style,
+  return {
     body: [el('path', { d: title.d, fill: t.ink }), el('path', { d: note.d, fill: t.ink3 }), tile, grid, ringLabels, poly, lab],
-  });
+    defs: [], css: style, height: CHART_H,
+    summary: `${labels.activityTitle}: ${summary}. Stars ${tt.stars}, forks ${tt.forks}`,
+  };
 }

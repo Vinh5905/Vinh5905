@@ -6,10 +6,12 @@
 //   node scripts/fetch-data.mjs --lib <path to compiled library src dir>
 //   env: GITHUB_TOKEN (required)
 //
-// Safety: the new file is validated before it replaces the old one. On any error
-// the script exits 1 and the previous data (and therefore the previous images)
-// stay untouched. If only `fetchedAt` would change, nothing is written.
-import { readFileSync, writeFileSync, renameSync, existsSync } from 'node:fs';
+// Writes data/github-stats.json (rolling 12 months) and data/years/<year>.json
+// for the last `github.years` calendar years.
+// Safety: all requests run and validate first; on any error the script exits 1
+// and every previous data file (and therefore every image) stays untouched.
+// Files whose content only differs in `fetchedAt` are not rewritten.
+import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
@@ -28,17 +30,23 @@ const require = createRequire(import.meta.url);
 const client = require(join(libDir, 'github-graphql.js'));
 const aggregate = require(join(libDir, 'aggregate-user-info.js'));
 
+const iso = (d) => new Date(d).toISOString().slice(0, 10);
+const calendarOf = (info) => info.contributionCalendar.map((c) => ({ date: iso(c.date), count: c.contributionCount, level: c.contributionLevel }));
+const same = (file, data) => existsSync(file) && JSON.stringify({ ...JSON.parse(readFileSync(file, 'utf8')), fetchedAt: null }) === JSON.stringify({ ...data, fetchedAt: null });
+
 try {
+  // 1. everything first, in memory; nothing is written unless all requests succeed
+  const fetched = new Date().toISOString();
   const response = await client.fetchData(token, username, config.github.maxRepos ?? 100, null);
   const info = aggregate.aggregateUserInfo(response); // throws on GraphQL errors
-  const iso = (d) => new Date(d).toISOString().slice(0, 10);
-  const data = validate({
+  const files = [];
+  files.push([out, validate({
     schema: 1,
     source: 'github-graphql',
     sourceNote: 'yoshi389111/github-profile-3d-contrib fetchData + aggregateUserInfo (unmodified).',
     username,
-    fetchedAt: new Date().toISOString(),
-    calendar: info.contributionCalendar.map((c) => ({ date: iso(c.date), count: c.contributionCount, level: c.contributionLevel })),
+    fetchedAt: fetched,
+    calendar: calendarOf(info),
     languages: info.contributesLanguage.map((l) => ({ language: l.language, color: l.color, contributions: l.contributions })),
     totals: {
       contributions: info.totalContributions,
@@ -50,17 +58,38 @@ try {
       stars: info.totalStargazerCount,
       forks: info.totalForkCount,
     },
-  });
-  if (existsSync(out)) {
-    const strip = (d) => JSON.stringify({ ...d, fetchedAt: null });
-    if (strip(JSON.parse(readFileSync(out, 'utf8'))) === strip(data)) {
-      console.log('data unchanged; keeping existing file');
-      process.exit(0);
-    }
+  })]);
+
+  // per-year calendars for the last N calendar years (library's YEAR option)
+  const nYears = config.github.years ?? 3;
+  const thisYear = new Date().getUTCFullYear();
+  const yearsDir = join(root, 'data/years');
+  const wanted = Array.from({ length: nYears }, (_, i) => thisYear - i);
+  for (const y of wanted) {
+    const yi = aggregate.aggregateUserInfo(await client.fetchData(token, username, 1, y));
+    files.push([join(yearsDir, `${y}.json`), validate({
+      schema: 1, kind: 'year', year: y,
+      source: 'github-graphql',
+      sourceNote: 'yoshi389111/github-profile-3d-contrib fetchData(year) + aggregateUserInfo (unmodified).',
+      username, fetchedAt: fetched,
+      calendar: calendarOf(yi),
+      totals: { contributions: yi.totalContributions },
+    })]);
   }
-  writeFileSync(out + '.tmp', JSON.stringify(data, null, 2) + '\n');
-  renameSync(out + '.tmp', out);
-  console.log(`wrote ${out}: ${data.calendar.length} days, ${data.totals.contributions} contributions`);
+
+  // 2. write only what changed (atomic per file), drop years that left the window
+  mkdirSync(yearsDir, { recursive: true });
+  let changed = 0;
+  for (const [file, data] of files) {
+    if (same(file, data)) continue;
+    writeFileSync(file + '.tmp', JSON.stringify(data, null, 2) + '\n');
+    renameSync(file + '.tmp', file);
+    changed++;
+  }
+  for (const f of readdirSync(yearsDir)) {
+    if (/^\d{4}\.json$/.test(f) && !wanted.includes(Number(f.slice(0, 4)))) { rmSync(join(yearsDir, f)); changed++; }
+  }
+  console.log(changed ? `updated ${changed} data file(s)` : 'data unchanged; keeping existing files');
 } catch (e) {
   console.error('fetch failed; previous data kept:', e?.response?.status ?? '', e?.message ?? e);
   process.exit(1);
