@@ -5,7 +5,7 @@
   "source": "github-graphql",
   "sourceNote": "yoshi389111/github-profile-3d-contrib fetchData(year) + aggregateUserInfo (unmodified).",
   "username": "Vinh5905",
-  "fetchedAt": "2026-11-16T06:20:33.307Z",
+  "fetchedAt": "2026-11-17T02:58:46.928Z",
   "calendar": [
     {
       "date": "2026-01-01",
@@ -705,12 +705,12 @@
     {
       "date": "2026-05-20",
       "count": 13,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-05-21",
       "count": 12,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-05-22",
@@ -740,7 +740,7 @@
     {
       "date": "2026-05-27",
       "count": 34,
-      "level": 4
+      "level": 3
     },
     {
       "date": "2026-05-28",
@@ -750,12 +750,12 @@
     {
       "date": "2026-05-29",
       "count": 11,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-05-30",
       "count": 31,
-      "level": 4
+      "level": 3
     },
     {
       "date": "2026-05-31",
@@ -1155,7 +1155,7 @@
     {
       "date": "2026-08-18",
       "count": 12,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-08-19",
@@ -1185,12 +1185,12 @@
     {
       "date": "2026-08-24",
       "count": 12,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-08-25",
       "count": 11,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-08-26",
@@ -1515,7 +1515,7 @@
     {
       "date": "2026-10-29",
       "count": 11,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-10-30",
@@ -1575,7 +1575,7 @@
     {
       "date": "2026-11-10",
       "count": 11,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-11-11",
@@ -1599,18 +1599,18 @@
     },
     {
       "date": "2026-11-15",
-      "count": 167,
+      "count": 170,
       "level": 4
     },
     {
       "date": "2026-11-16",
-      "count": 18,
-      "level": 2
+      "count": 53,
+      "level": 4
     },
     {
       "date": "2026-11-17",
-      "count": 0,
-      "level": 0
+      "count": 6,
+      "level": 1
     },
     {
       "date": "2026-11-18",
@@ -1834,6 +1834,6 @@
     }
   ],
   "totals": {
-    "contributions": 954
+    "contributions": 998
   }
 }
